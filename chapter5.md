@@ -232,44 +232,139 @@ class LoRALayer:
 
 ## 5.2 文档记忆化技术
 
+文档记忆化是生成式检索区别于传统检索的核心特征。传统检索系统将文档存储在外部索引中，查询时进行相似度计算；而生成式检索需要将整个文档集合"压缩"到模型参数中，这是一个极具挑战性的任务。想象一下，要让一个神经网络"记住"数百万甚至数十亿个文档，并能根据查询准确"回忆"出相关文档，这需要精心设计的记忆化策略。
+
 ### 5.2.1 记忆化的本质
 
-文档记忆化是生成式检索的核心挑战。模型需要将文档集合 $\mathcal{D}$ 编码到参数 $\theta$ 中：
+文档记忆化本质上是一个信息压缩问题。我们需要将文档集合 $\mathcal{D}$ 的信息编码到有限的参数空间 $\theta$ 中：
 
 $$\theta^* = \arg\min_\theta \sum_{d \in \mathcal{D}} \mathcal{L}_{mem}(d, \theta)$$
 
-关键问题是如何在有限的参数空间中高效存储文档信息。
+这个优化问题面临几个根本性挑战：
+
+**信息论限制**：
+根据信息论，存储 $N$ 个文档至少需要 $\log_2 N$ 位信息来区分它们。对于100万个文档，理论下界是20位。但实际上，由于文档内容的复杂性和查询的多样性，所需的信息量远大于此。
+
+**容量-泛化权衡**：
+- **过度记忆**：如果模型完美记住每个文档，可能失去泛化能力，无法处理新查询
+- **记忆不足**：如果记忆不充分，模型无法准确生成文档ID，检索失败
+
+**记忆干扰问题**：
+当模型试图记忆新文档时，可能会干扰已记忆的文档，这被称为"灾难性干扰"（catastrophic interference）。特别是当文档内容相似时，这种干扰更加严重。
+
+**记忆的层次性**：
+人类记忆是层次化的：我们先记住大类，再记住细节。生成式检索也应该采用类似策略：
+- **语义层**：记忆文档的主题、类别等高层语义
+- **内容层**：记忆文档的具体内容特征
+- **标识层**：记忆文档的唯一标识符
+
+理解这些本质问题后，我们可以设计更有效的记忆化策略。
 
 ### 5.2.2 分层记忆策略
 
-为了提高记忆效率，可以采用分层编码：
+分层记忆是提高记忆效率的关键技术。通过将记忆任务分解为多个层次，我们可以让模型更高效地利用参数容量。
 
 **1. 文档聚类与层次化标识符**
 
+层次化标识符设计是分层记忆的基础。一个好的层次结构应该反映文档的语义关系：
+
 ```
-Level 1: 主题类别 (如 "体育")
+Level 1: 领域 (如 "科技", "体育", "娱乐")
     ↓
-Level 2: 子类别 (如 "篮球")
+Level 2: 主题 (如 "人工智能", "篮球", "电影")
     ↓
-Level 3: 具体文档 ID
+Level 3: 子主题 (如 "深度学习", "NBA", "动作片")
+    ↓
+Level 4: 具体文档 ID
 ```
 
-这种层次结构允许模型共享高层语义信息，减少记忆负担。
+这种设计的优势：
+- **参数共享**：同一类别的文档共享高层表示，减少参数冗余
+- **渐进生成**：模型可以先生成大类，再逐步细化，降低生成难度
+- **错误容忍**：即使底层ID生成错误，高层类别正确仍能返回相关结果
+
+构建层次结构的方法：
+```python
+# 基于聚类的层次构建
+def build_hierarchy(documents, num_levels=4):
+    hierarchy = {}
+    current_docs = documents
+    
+    for level in range(num_levels):
+        if level < num_levels - 1:
+            # 聚类产生下一层
+            clusters = kmeans_clustering(current_docs, n_clusters=branch_factor)
+            for cluster_id, cluster_docs in clusters.items():
+                parent_path = get_parent_path(cluster_id, level)
+                hierarchy[parent_path] = cluster_docs
+        else:
+            # 最底层分配唯一ID
+            for doc_idx, doc in enumerate(current_docs):
+                doc_path = get_full_path(doc_idx)
+                hierarchy[doc_path] = doc
+    
+    return hierarchy
+```
 
 **2. 渐进式记忆**
 
-按重要性逐步记忆文档：
+渐进式记忆策略模仿人类学习过程，从简单到复杂，从重要到次要：
 
 ```python
-# 伪代码
-for epoch in range(num_epochs):
-    if epoch < warmup_epochs:
-        # 先记忆高频/重要文档
-        train_on_top_k_docs(k=1000)
-    else:
-        # 逐步扩展到全部文档
-        train_on_all_docs()
+def progressive_memorization(model, documents, epochs=100):
+    # 阶段1：记忆核心文档（top 10%）
+    core_docs = select_core_documents(documents, ratio=0.1)
+    for epoch in range(epochs // 3):
+        train(model, core_docs, lr=1e-4)
+    
+    # 阶段2：扩展到常见文档（top 50%）
+    common_docs = select_common_documents(documents, ratio=0.5)
+    for epoch in range(epochs // 3):
+        train(model, common_docs, lr=5e-5)
+    
+    # 阶段3：包含所有文档
+    for epoch in range(epochs // 3):
+        train(model, documents, lr=1e-5)
+        
+        # 定期回放核心文档，防止遗忘
+        if epoch % 5 == 0:
+            train(model, core_docs, lr=1e-6)
 ```
+
+文档重要性的评估标准：
+- **查询频率**：被查询次数多的文档更重要
+- **文档质量**：权威性、完整性高的文档优先
+- **时效性**：新发布的文档可能需要优先记忆
+- **多样性**：确保各类别都有代表性文档被记忆
+
+**3. 记忆路由机制**
+
+为了更高效地管理记忆，可以设计专门的路由机制，将不同类型的文档路由到不同的记忆模块：
+
+```python
+class MemoryRouter:
+    def __init__(self, num_experts=8):
+        self.router = nn.Linear(hidden_dim, num_experts)
+        self.experts = nn.ModuleList([
+            ExpertModule() for _ in range(num_experts)
+        ])
+    
+    def forward(self, doc_embedding):
+        # 计算路由权重
+        routing_weights = F.softmax(self.router(doc_embedding), dim=-1)
+        
+        # Top-K专家选择
+        top_k_weights, top_k_indices = routing_weights.topk(k=2)
+        
+        # 混合专家输出
+        output = 0
+        for weight, idx in zip(top_k_weights, top_k_indices):
+            output += weight * self.experts[idx](doc_embedding)
+        
+        return output
+```
+
+这种设计允许模型自动学习如何分配记忆资源，不同专家可以专门处理不同类型的文档。
 
 ### 5.2.3 记忆增强技术
 
