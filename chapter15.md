@@ -74,6 +74,86 @@ $$\text{Total Latency} = \text{Encoding}_\text{time} + \text{Generation}_\text{t
 2. **查询分布漂移**：真实查询分布随时间变化，与测试集分布存在差异
 3. **用户交互模式**：离线评估忽略了用户的浏览、点击、停留时间等信号
 
+**生成式检索特有的差距放大效应**：
+
+生成式检索的记忆化特性使得在线-离线差距更加明显。模型在训练时"记住"了文档集合，但实际部署时面临的是动态变化的文档库：
+
+```
+训练时：Model memorizes {d1, d2, ..., d10000}
+部署后Day 1：需要检索 {d1, d2, ..., d10000, d10001}  # 新增文档
+部署后Day 7：需要检索 {d1, d2, ..., d9998, d10001, ..., d10500}  # 删除+新增
+部署后Day 30：查询分布从"技术类"转向"娱乐类"  # 用户兴趣迁移
+```
+
+**协变量偏移（Covariate Shift）问题**：
+
+离线测试集通常采样自历史数据，而在线环境的输入分布P(X)持续变化：
+
+$$P_{\text{train}}(X) \neq P_{\text{deploy}}(X)$$
+
+对于生成式检索，这种偏移体现在多个层面：
+- **查询长度分布**：移动端查询变短，语音查询变长
+- **查询意图分布**：季节性、节假日、热点事件影响
+- **查询复杂度分布**：用户学习使用高级查询语法
+
+**标注延迟与反馈稀疏性**：
+
+```
+用户查询 → 系统返回结果 → 用户浏览 → 点击/不点击
+    ↓                                      ↓
+T=0秒                                  T=5-30秒
+
+进一步行为：收藏/购买/分享
+    ↓
+T=分钟到天级别
+```
+
+离线评估使用的是完整标注数据，而在线系统只能获得部分隐式反馈，且存在显著延迟。
+
+### 15.1.4 生成幻觉的评估挑战
+
+生成式检索独有的"幻觉"问题给评估带来新挑战：
+
+**幻觉类型分类**：
+
+1. **完全幻觉**：生成不存在的文档ID
+   ```python
+   Query: "最新iPhone评测"
+   Generated: ["doc_99999"]  # 文档库最大ID是50000
+   ```
+
+2. **语义幻觉**：生成存在但不相关的文档ID
+   ```python
+   Query: "Python编程教程"  
+   Generated: ["doc_123"]  # doc_123是关于Java的
+   ```
+
+3. **组合幻觉**：单个ID正确但组合不合理
+   ```python
+   Query: "初学者编程入门"
+   Generated: ["basic_101", "advanced_999"]  # 难度不匹配
+   ```
+
+**幻觉检测指标**：
+
+$$\text{Hallucination Rate} = \frac{\text{幻觉生成次数}}{\text{总生成次数}}$$
+
+细分为：
+$$\text{HR}_{\text{complete}} = \frac{|\text{Invalid IDs}|}{|\text{All Generated IDs}|}$$
+$$\text{HR}_{\text{semantic}} = \frac{|\text{Irrelevant Valid IDs}|}{|\text{Valid IDs}|}$$
+
+**幻觉的代价不对称性**：
+
+不同类型的幻觉造成的影响差异巨大：
+- **高代价幻觉**：医疗、法律、金融领域的错误信息
+- **低代价幻觉**：娱乐、休闲内容的轻微偏差
+- **隐性代价**：用户信任度下降，长期流失
+
+因此需要加权的幻觉惩罚：
+$$\text{Weighted Hallucination Cost} = \sum_{i} w_i \cdot \mathbb{1}[\text{hallucination}_i]$$
+
+其中$w_i$根据领域敏感性和业务影响确定。
+
 ## 15.2 新型评估指标设计
 
 ### 15.2.1 生成质量指标
@@ -128,11 +208,83 @@ $$\text{CGE} = \frac{\text{DCG@k}}{\text{Computational Cost}}$$
 
 $$\text{Robustness} = 1 - \frac{|\Delta\text{Performance}|}{|\Delta\text{Input}|}$$
 
+**具体扰动策略**：
+
+a) **字符级扰动**：
+   ```python
+   原始查询："深度学习框架比较"
+   扰动查询："深度学习框架比交"  # 错别字
+            "深度 学习框架比较"  # 额外空格
+            "深度学习framwork比较"  # 中英混合
+   ```
+
+b) **语义级扰动**：
+   ```python
+   原始查询："如何学习机器学习"
+   同义替换："怎样学习ML"
+   改写查询："机器学习入门方法"
+   ```
+
+c) **对抗性扰动**：
+   通过梯度攻击生成最坏情况输入：
+   $$x_{adv} = x + \epsilon \cdot \text{sign}(\nabla_x L(f(x), y))$$
+
 **2. 分布外泛化（Out-of-Distribution Generalization）**
 
 评估在未见过的查询类型上的表现：
 
 $$\text{OOD-Score} = \frac{\text{Performance}_{\text{OOD}}}{\text{Performance}_{\text{IID}}}$$
+
+**OOD测试集构建**：
+
+- **领域迁移**：从新闻检索迁移到学术检索
+- **语言迁移**：从中文查询迁移到英文查询  
+- **长度迁移**：从短查询（2-3词）迁移到长查询（10+词）
+- **时间迁移**：从历史查询迁移到新兴话题查询
+
+**3. 一致性指标（Consistency Metrics）**
+
+衡量相似查询是否得到相似结果：
+
+$$\text{Consistency} = \frac{1}{|\mathcal{Q}|} \sum_{q \in \mathcal{Q}} \text{sim}(f(q), f(q'))$$
+
+其中$q'$是$q$的语义等价变换。
+
+**4. 稳定性指标（Stability Metrics）**
+
+评估模型输出的时间稳定性：
+
+$$\text{Temporal Stability} = 1 - \frac{1}{T} \sum_{t=1}^{T-1} |f_t(q) - f_{t+1}(q)|$$
+
+这对生成式检索尤其重要，因为模型更新可能导致完全不同的ID序列生成。
+
+### 15.2.4 用户中心的评估指标
+
+传统指标往往忽略了用户体验的细微差别，生成式检索需要更贴近用户感知的指标：
+
+**1. 认知负荷指标（Cognitive Load）**
+
+衡量用户理解和处理结果的难易程度：
+
+$$\text{Cognitive Load} = \alpha \cdot \text{结果复杂度} + \beta \cdot \text{决策时间} + \gamma \cdot \text{返回率}$$
+
+**2. 探索-利用平衡（Exploration-Exploitation Balance）**
+
+$$\text{E-E Balance} = \frac{\text{新颖结果数}}{\text{总结果数}} \times \text{相关性保持率}$$
+
+**3. 会话连贯性（Session Coherence）**
+
+对于多轮检索会话：
+
+$$\text{Session Coherence} = \frac{1}{n-1} \sum_{i=1}^{n-1} \text{transition_quality}(q_i, q_{i+1})$$
+
+**4. 期望违背度（Expectation Violation）**
+
+衡量结果是否符合用户预期：
+
+$$\text{EV} = |P(\text{result}|\text{query}) - P(\text{expected}|\text{query})|$$
+
+生成式检索可能产生"创造性"但违背用户期望的结果。
 
 ## 15.3 主流数据集与基准
 
@@ -211,6 +363,168 @@ metrics = {
     'efficiency': ['Queries-per-Second', 'Memory-Usage']
 }
 ```
+
+### 15.3.4 专门化的生成式检索基准
+
+随着生成式检索的发展，社区开发了专门的评估基准：
+
+**1. GenIR-Bench（2023）**
+
+专为生成式检索设计的综合基准：
+
+```
+数据规模：
+- 10M文档，100K查询
+- 5种语言（英、中、日、德、法）
+- 8个垂直领域
+
+特色任务：
+- 增量索引更新
+- 跨语言检索
+- 多跳推理检索
+- 时序感知检索
+```
+
+**评估维度**：
+- **生成准确性**：ID序列的精确匹配率
+- **语义保真度**：生成结果的语义相关性
+- **计算效率**：FLOPs、内存、延迟
+- **适应能力**：新文档的快速索引能力
+
+**2. DSI-QA数据集**
+
+专注于问答场景的生成式检索：
+
+```python
+# 数据集结构
+{
+    "question": "谁发明了电话？",
+    "doc_ids": ["wiki_bell_001", "patent_1876_174"],
+    "answer_spans": ["亚历山大·贝尔", "1876年3月10日"],
+    "difficulty": "easy",
+    "reasoning_type": "factual"
+}
+```
+
+**特点**：
+- 结合检索和答案生成
+- 多粒度标注（文档级、段落级、句子级）
+- 推理类型分类（事实型、推理型、聚合型）
+
+**3. Streaming-IR基准**
+
+评估动态文档流场景：
+
+```
+时间线：
+T0: 初始10K文档
+T1: +1K新文档，-500旧文档
+T2: +2K新文档，-1K旧文档
+...
+T100: 文档集完全更新
+```
+
+**关键指标**：
+- **适应延迟**：新文档可检索的时间
+- **遗忘率**：旧知识的保持程度
+- **增量学习效率**：更新所需计算资源
+
+### 15.3.5 领域特定基准
+
+**1. BioASQ（生物医学）**
+
+```
+规模：15M PubMed文档
+查询类型：
+- Yes/No问题
+- 事实型问题
+- 列表型问题
+- 摘要型问题
+
+生成式检索挑战：
+- 专业术语的准确生成
+- 医学实体的规范化
+- 证据链的完整性
+```
+
+**2. MSMARCO-Product（电商）**
+
+```
+特点：
+- 真实产品查询
+- 多模态信息（文本+图像）
+- 用户行为信号（点击、购买、评价）
+
+生成式适配：
+- 产品ID的层次化编码
+- 考虑库存状态的动态生成
+- 个性化排序的融合
+```
+
+**3. TREC-Legal（法律）**
+
+```
+挑战：
+- 超长文档（平均10K词）
+- 精确性要求极高
+- 引用关系的保持
+
+生成式方案：
+- 分层标识符（法院-年份-案件号）
+- 约束生成确保合法ID
+- 引用图的联合建模
+```
+
+### 15.3.6 评估基准的最佳实践
+
+**1. 数据集选择策略**
+
+```python
+def select_benchmarks(system_type, deployment_scenario):
+    core_benchmarks = ['MS-MARCO', 'Natural Questions']
+    
+    if deployment_scenario == 'zero-shot':
+        core_benchmarks.append('BEIR')
+    
+    if system_type == 'multilingual':
+        core_benchmarks.append('mMARCO', 'XOR-QA')
+    
+    if requires_streaming:
+        core_benchmarks.append('Streaming-IR')
+    
+    return core_benchmarks
+```
+
+**2. 评估流程标准化**
+
+```
+Step 1: 数据预处理
+- 文档ID映射设计
+- 查询规范化
+- 训练/验证/测试划分
+
+Step 2: 模型训练
+- 超参数网格搜索
+- 早停策略
+- 检查点保存
+
+Step 3: 推理评估
+- 批处理 vs 流式
+- 缓存策略
+- 错误分析
+
+Step 4: 结果报告
+- 平均值±标准差
+- 统计显著性检验
+- 失败案例分析
+```
+
+**3. 公平比较原则**
+
+- **相同的预处理**：tokenization、normalization一致
+- **相同的硬件环境**：GPU型号、内存大小
+- **相同的推理设置**：beam size、温度参数
+- **多次运行取平均**：至少3次随机种子
 
 ## 15.4 高级话题：因果推断在离线评估中的应用
 
@@ -332,6 +646,183 @@ $$\tau_{RD} = \lim_{x \downarrow c} E[Y_i | X_i = x] - \lim_{x \uparrow c} E[Y_i
 3. 计算间接效应占比
 
 $$\text{Mediation Ratio} = \frac{\text{Indirect Effect}}{\text{Total Effect}}$$
+
+**结构方程模型（SEM）应用**：
+
+对于多个中介变量的复杂情况，使用SEM同时估计所有路径：
+
+```python
+# 路径系数估计
+paths = {
+    'gen_retrieval → response_time': -0.35,  # 负相关：生成更快
+    'gen_retrieval → diversity': 0.42,       # 正相关：更多样
+    'gen_retrieval → relevance': -0.08,      # 轻微负相关
+    'response_time → satisfaction': -0.28,    # 快速响应提升满意度
+    'diversity → satisfaction': 0.15,         # 多样性的正面影响
+    'relevance → satisfaction': 0.65,         # 相关性最重要
+    'gen_retrieval → satisfaction': 0.12      # 直接效应
+}
+
+# 总效应计算
+total_effect = 0.12 + (-0.35)*(-0.28) + 0.42*0.15 + (-0.08)*0.65
+# = 0.12 + 0.098 + 0.063 - 0.052 = 0.229
+```
+
+**Sobel检验**：
+
+验证中介效应的统计显著性：
+
+$$z = \frac{a \times b}{\sqrt{b^2 \times s_a^2 + a^2 \times s_b^2}}$$
+
+其中$a$是自变量到中介变量的系数，$b$是中介变量到因变量的系数。
+
+### 15.4.6 异质性处理效应（HTE）
+
+不同用户群体对生成式检索的响应存在显著差异：
+
+**条件平均处理效应（CATE）估计**：
+
+$$\tau(x) = E[Y_i(1) - Y_i(0) | X_i = x]$$
+
+**机器学习方法估计HTE**：
+
+1. **因果森林（Causal Forest）**：
+```python
+from econml.dml import CausalForestDML
+
+# 特征：用户画像、查询特征、上下文
+X = user_features
+# 处理：是否使用生成式检索
+T = treatment_assignment  
+# 结果：用户满意度
+Y = satisfaction_score
+
+# 训练因果森林
+causal_forest = CausalForestDML(
+    n_estimators=100,
+    min_samples_leaf=10
+)
+causal_forest.fit(Y, T, X=X)
+
+# 预测个体处理效应
+individual_effects = causal_forest.effect(X)
+```
+
+2. **元学习器（Meta-Learners）**：
+
+**S-Learner**：
+```python
+# 单一模型，treatment作为特征
+model = XGBoostRegressor()
+X_with_treatment = concat([X, T])
+model.fit(X_with_treatment, Y)
+```
+
+**T-Learner**：
+```python
+# 分别训练treatment和control模型
+model_treated = XGBoostRegressor()
+model_control = XGBoostRegressor()
+model_treated.fit(X[T==1], Y[T==1])
+model_control.fit(X[T==0], Y[T==0])
+# HTE = 预测差异
+hte = model_treated.predict(X) - model_control.predict(X)
+```
+
+**X-Learner**：
+```python
+# 改进T-Learner，使用倾向分数加权
+# Step 1: 训练结果模型
+# Step 2: 计算伪结果
+# Step 3: 训练HTE模型
+# Step 4: 倾向分数加权组合
+```
+
+**发现的用户群体差异**：
+
+```
+新手用户（使用<1月）：
+- CATE = +12.3%
+- 原因：更容易接受新界面，探索意愿强
+
+专家用户（使用>2年）：
+- CATE = -3.5%
+- 原因：习惯传统检索，精确查询需求
+
+移动用户：
+- CATE = +8.7%
+- 原因：生成式检索减少输入，适合移动场景
+
+桌面用户：
+- CATE = +2.1%
+- 原因：效果提升有限，传统方法已经很好
+```
+
+### 15.4.7 合成控制法（Synthetic Control）
+
+当无法进行随机实验时，使用合成控制法构建反事实：
+
+**应用场景**：某个地区率先部署生成式检索
+
+**方法步骤**：
+
+1. **预处理期匹配**：
+   找到控制地区的权重$W$，使得：
+   $$\min_W \sum_{t<T_0} (Y_{treated,t} - \sum_j W_j Y_{control_j,t})^2$$
+
+2. **构建合成控制**：
+   $$Y_{synthetic,t} = \sum_j W_j^* Y_{control_j,t}$$
+
+3. **估计处理效应**：
+   $$\tau_t = Y_{treated,t} - Y_{synthetic,t}, \quad t \geq T_0$$
+
+**实际案例**：
+
+```python
+# 北京地区部署生成式检索
+treated_region = 'Beijing'
+control_regions = ['Shanghai', 'Guangzhou', 'Shenzhen', 'Hangzhou']
+
+# 预处理期（部署前3个月）
+pre_period = range(-90, 0)
+# 后处理期（部署后1个月）
+post_period = range(0, 30)
+
+# 学习权重
+weights = {
+    'Shanghai': 0.35,
+    'Guangzhou': 0.25,
+    'Shenzhen': 0.20,
+    'Hangzhou': 0.20
+}
+
+# 构建合成北京
+synthetic_beijing = sum(w * metrics[region] for region, w in weights.items())
+
+# 计算效应
+effect = metrics['Beijing'][post_period] - synthetic_beijing[post_period]
+```
+
+**置换检验（Permutation Test）**：
+
+验证效应的统计显著性：
+
+```python
+def placebo_test(data, treated_unit, n_iterations=1000):
+    placebo_effects = []
+    
+    for _ in range(n_iterations):
+        # 随机选择一个控制单位作为"假处理"
+        placebo_treated = random.choice(control_units)
+        placebo_effect = estimate_synthetic_control(placebo_treated)
+        placebo_effects.append(placebo_effect)
+    
+    # 计算p值
+    true_effect = estimate_synthetic_control(treated_unit)
+    p_value = sum(abs(p) >= abs(true_effect) for p in placebo_effects) / n_iterations
+    
+    return p_value
+```
 
 ## 15.5 工业案例：Airbnb的A/B测试框架演进
 
