@@ -310,11 +310,235 @@ def generate_compatible_id(new_doc, existing_ids):
 
 这些操作使得系统可以处理如"找到包含猫但不包含狗的图像"这样的复杂查询。
 
-### 9.4 CLIP与生成式方法的结合
-- 9.4.1 CLIP的对比学习范式
-- 9.4.2 从对比到生成的桥梁
-- 9.4.3 混合架构设计
-- 9.4.4 训练策略优化
+## 9.4 CLIP与生成式方法的结合
+
+CLIP（Contrastive Language-Image Pre-training）通过大规模对比学习在视觉-语言理解上取得了突破性进展。将CLIP的强大表示能力与生成式检索的灵活性相结合，可以构建更加强大的多模态检索系统。
+
+### 9.4.1 CLIP的对比学习范式
+
+CLIP的核心是通过对比学习在共享空间中对齐图像和文本表示：
+
+```
+┌─────────────┐         ┌─────────────┐
+│Image Encoder│         │Text Encoder │
+└──────┬──────┘         └──────┬──────┘
+       │                        │
+   [I₁,I₂,...,Iₙ]          [T₁,T₂,...,Tₙ]
+       │                        │
+       └────────┬───────────────┘
+                │
+        Cosine Similarity
+                │
+        ┌───────▼────────┐
+        │  N×N Matrix    │
+        │  ┌─┬─┬─┬─┐    │
+        │  ├─┼─┼─┼─┤    │
+        │  ├─┼─┼─┼─┤    │
+        │  └─┴─┴─┴─┘    │
+        └────────────────┘
+```
+
+CLIP的训练目标是最大化匹配对的相似度，最小化非匹配对的相似度：
+
+$$\mathcal{L}_{CLIP} = -\frac{1}{2N}\sum_{i=1}^{N}\left[\log\frac{e^{s_{ii}/\tau}}{\sum_{j=1}^{N}e^{s_{ij}/\tau}} + \log\frac{e^{s_{ii}/\tau}}{\sum_{j=1}^{N}e^{s_{ji}/\tau}}\right]$$
+
+其中$s_{ij} = \cos(I_i, T_j)$是图像$i$和文本$j$的余弦相似度。
+
+### 9.4.2 从对比到生成的桥梁
+
+将CLIP的对比学习范式转换为生成式框架需要解决几个关键问题：
+
+**1. 表示空间的转换**
+
+CLIP产生连续的嵌入向量，而生成式检索需要离散的标识符。转换策略包括：
+
+```python
+def clip_to_generative(clip_embedding):
+    # 方法1：直接量化
+    quantized_ids = vector_quantize(clip_embedding)
+    
+    # 方法2：通过解码器生成
+    decoder_hidden = mlp(clip_embedding)
+    doc_ids = autoregressive_decode(decoder_hidden)
+    
+    # 方法3：检索最近邻作为种子
+    nearest_docs = retrieve_knn(clip_embedding, doc_embeddings)
+    doc_ids = rerank_and_select(nearest_docs)
+    
+    return doc_ids
+```
+
+**2. 训练目标的统一**
+
+结合对比损失和生成损失：
+
+$$\mathcal{L}_{hybrid} = \alpha \cdot \mathcal{L}_{generation} + \beta \cdot \mathcal{L}_{contrastive} + \gamma \cdot \mathcal{L}_{alignment}$$
+
+其中：
+- $\mathcal{L}_{generation}$：标识符生成的交叉熵损失
+- $\mathcal{L}_{contrastive}$：CLIP风格的对比损失
+- $\mathcal{L}_{alignment}$：确保生成的标识符与CLIP嵌入一致
+
+**3. 推理时的协同**
+
+利用CLIP进行粗筛，生成模型进行精排：
+
+```
+查询 --> CLIP编码 --> Top-K候选 --> 生成式重排 --> 最终结果
+```
+
+### 9.4.3 混合架构设计
+
+**架构1：CLIP作为编码器**
+
+```python
+class CLIPGenerativeRetriever:
+    def __init__(self):
+        self.clip_model = load_clip()
+        self.id_decoder = TransformerDecoder()
+    
+    def encode_query(self, query):
+        if is_image(query):
+            features = self.clip_model.encode_image(query)
+        else:
+            features = self.clip_model.encode_text(query)
+        return features
+    
+    def generate_doc_ids(self, query_features):
+        # 使用CLIP特征初始化解码器
+        decoder_input = self.projection(query_features)
+        doc_ids = self.id_decoder.generate(decoder_input)
+        return doc_ids
+```
+
+**架构2：双路径架构**
+
+```
+          ┌─────────────────────┐
+          │      Query          │
+          └──────┬──┬───────────┘
+                 │  │
+        ┌────────┘  └────────┐
+        ▼                    ▼
+   CLIP Path            Generative Path
+        │                    │
+   Dense Retrieval      ID Generation
+        │                    │
+        └────────┬───────────┘
+                 │
+           Fusion & Rerank
+                 │
+                 ▼
+            Final Results
+```
+
+**架构3：级联架构**
+
+CLIP用于初步筛选，生成模型用于精确检索：
+
+```python
+def cascaded_retrieval(query, top_k=100, final_k=10):
+    # 第一阶段：CLIP检索
+    clip_features = encode_with_clip(query)
+    candidates = clip_retrieve(clip_features, top_k)
+    
+    # 第二阶段：生成式精排
+    refined_ids = []
+    for candidate in candidates:
+        score = generative_model.score(query, candidate)
+        refined_ids.append((candidate, score))
+    
+    # 返回最终结果
+    refined_ids.sort(key=lambda x: x[1], reverse=True)
+    return refined_ids[:final_k]
+```
+
+### 9.4.4 训练策略优化
+
+**1. 预训练策略**
+
+利用CLIP的预训练权重初始化多模态编码器：
+
+```python
+def initialize_from_clip(model, clip_checkpoint):
+    # 加载CLIP权重
+    clip_state = torch.load(clip_checkpoint)
+    
+    # 初始化视觉编码器
+    model.vision_encoder.load_state_dict(
+        clip_state['visual'], strict=False)
+    
+    # 初始化文本编码器
+    model.text_encoder.load_state_dict(
+        clip_state['text'], strict=False)
+    
+    # 冻结部分层
+    for param in model.vision_encoder.parameters():
+        param.requires_grad = False
+```
+
+**2. 知识蒸馏**
+
+使用CLIP作为教师模型指导生成模型训练：
+
+$$\mathcal{L}_{distill} = \text{KL}(p_{student}||p_{teacher}) + \lambda \cdot \text{MSE}(h_{student}, h_{teacher})$$
+
+**3. 课程学习**
+
+逐步增加任务难度：
+
+```python
+curriculum = [
+    {'stage': 1, 'task': 'exact_match', 'epochs': 10},
+    {'stage': 2, 'task': 'semantic_similar', 'epochs': 20},
+    {'stage': 3, 'task': 'cross_modal', 'epochs': 30},
+    {'stage': 4, 'task': 'compositional', 'epochs': 40}
+]
+```
+
+**4. 负样本挖掘**
+
+利用CLIP找到难负样本增强训练：
+
+```python
+def mine_hard_negatives(query, positives, all_docs):
+    # 使用CLIP编码
+    query_emb = clip_encode(query)
+    doc_embs = [clip_encode(d) for d in all_docs]
+    
+    # 计算相似度
+    similarities = cosine_similarity(query_emb, doc_embs)
+    
+    # 选择难负样本（相似但不匹配）
+    hard_negatives = []
+    for idx, sim in enumerate(similarities):
+        if all_docs[idx] not in positives and sim > threshold:
+            hard_negatives.append(all_docs[idx])
+    
+    return hard_negatives
+```
+
+**5. 多任务学习**
+
+同时优化多个相关任务：
+
+```python
+class MultiTaskLoss:
+    def __init__(self):
+        self.tasks = {
+            'generation': GenerationLoss(),
+            'contrastive': ContrastiveLoss(),
+            'matching': MatchingLoss(),
+            'ranking': RankingLoss()
+        }
+    
+    def compute(self, outputs, targets):
+        total_loss = 0
+        for task_name, task_loss in self.tasks.items():
+            loss = task_loss(outputs[task_name], targets[task_name])
+            total_loss += self.weights[task_name] * loss
+        return total_loss
+```
 
 ### 9.5 高级话题：跨模态注意力的理论基础
 - 9.5.1 注意力机制的信息论视角
