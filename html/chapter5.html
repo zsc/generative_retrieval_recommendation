@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="./">
+    <title>第5章：生成式检索的训练策略</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/highlight.css">
+    <script src="assets/script.js" defer></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']],
+                processEscapes: false,
+                packages: {'[+]': ['noerrors', 'ams']}
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            loader: {
+                load: ['[tex]/noerrors', '[tex]/ams']
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>目录</h3>
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <div class="sidebar-search">
+                <input type="text" id="sidebar-search-input" placeholder="搜索..." autocomplete="off">
+            </div>
+            <div id="tree-container">
+                <nav class="tree-nav" role="tree">
+                    <div class="tree-item " >
+                        <a href="index.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">生成式检索与推荐系统教程</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter1.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第1章：从传统检索到生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter2.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第2章：预备知识速览</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter3.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第3章：差异化搜索索引（DSI）</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter4.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第4章：文档表示与标识符生成</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item active" >
+                        <a href="chapter5.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第5章：生成式检索的训练策略</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter6.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第6章：解码策略与推理优化</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter7.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第7章：NCI与可扩展性</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter8.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第8章：GENRE与实体检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter9.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第9章：多模态生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter10.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第10章：生成式推荐基础</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter11.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第11章：序列推荐与生成模型</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter12.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第12章：对话式推荐系统</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter13.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第13章：大语言模型时代的生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter14.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第14章：效率优化与系统设计</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter15.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第15章：评估指标与基准测试</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter16.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第16章：未来方向与开放问题</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="CLAUDE.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">Untitled</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </nav>
+        
+        <main class="content">
+            <article>
+                <h1 id="5">第5章：生成式检索的训练策略</h1>
+<p>生成式检索将文档检索问题转化为序列生成任务，这带来了独特的训练挑战。与传统的判别式检索模型不同，生成式模型需要直接"记住"整个文档集合，并学会根据查询精确生成文档标识符。本章深入探讨如何有效训练这类模型，包括预训练策略、文档记忆化技术、数据增强方法，以及提升模型鲁棒性的高级技术。我们将重点关注如何在有限的模型容量下编码海量文档信息，以及如何设计训练目标使模型既能准确记忆又能灵活泛化。</p>
+<h2 id="51">5.1 预训练与微调流程</h2>
+<p>生成式检索的训练流程与传统检索系统有本质区别。传统系统通常独立训练查询编码器和文档编码器，然后通过相似度计算进行匹配。而生成式检索将整个过程统一到一个序列生成框架中，这带来了独特的训练挑战：模型不仅要理解查询语义，还要能够精确记忆并生成文档标识符。这种端到端的训练方式要求我们重新思考预训练和微调的策略。</p>
+<h3 id="511">5.1.1 预训练目标设计</h3>
+<p>生成式检索模型的预训练是一个多目标优化问题。与纯语言模型不同，我们需要在预训练阶段就开始建立查询-文档的关联，同时保持模型的语言理解能力。这种双重需求导致了独特的预训练目标设计。</p>
+<ol>
+<li><strong>文档标识符预测（Document ID Prediction）</strong></li>
+</ol>
+<p>文档标识符预测是生成式检索的基础任务。给定文档内容 $d$，模型需要生成对应的标识符序列 $id = (t_1, t_2, ..., t_n)$。这个过程可以看作是一种"压缩编码"，将长文档压缩成短标识符：</p>
+<p>$$\mathcal{L}_{doc2id} = -\sum_{i=1}^{n} \log p(t_i | t_{&lt;i}, d; \theta)$$
+这个目标的关键在于如何设计标识符。随机标识符虽然简单，但模型难以学习其模式；语义标识符（如层次化类别路径）则提供了额外的结构信息，有助于模型泛化。实践中，我们常常采用混合策略：高层使用语义信息（如类别），底层使用学习得到的编码。</p>
+<p>训练时需要注意的是，文档到ID的映射应该是单射的（一对一），但在实际场景中可能存在重复文档。处理重复的策略包括：保留第一个出现的文档、合并重复文档的查询集合、或者为重复文档分配相同的标识符前缀但不同的后缀。</p>
+<ol start="2">
+<li><strong>查询-文档对齐（Query-Document Alignment）</strong></li>
+</ol>
+<p>查询-文档对齐是检索的核心任务。不同于传统的双塔模型分别编码查询和文档，生成式方法直接建模条件概率 $p(id_d | q)$：
+$$\mathcal{L}_{q2id} = -\sum_{(q,d) \in \mathcal{D}_{train}} \log p(id_d | q; \theta)$$
+这个目标的优势在于可以利用查询和文档之间的交互注意力（cross-attention），捕获更细粒度的语义匹配信号。但挑战在于训练数据的稀疏性：大多数查询只与少数文档相关，这导致正样本稀缺。</p>
+<p>为了缓解数据稀疏问题，我们可以采用多种策略：</p>
+<ul>
+<li><strong>查询扩展</strong>：为每个文档生成多个可能的查询变体</li>
+<li><strong>相关性传播</strong>：利用文档之间的相似性，将查询的相关性传播到相似文档</li>
+<li><strong>弱监督学习</strong>：利用点击日志等隐式反馈作为弱标签</li>
+</ul>
+<ol start="3">
+<li><strong>双向建模（Bidirectional Modeling）</strong></li>
+</ol>
+<p>双向建模同时训练查询到文档（Q2D）和文档到查询（D2Q）两个方向的生成：
+$$\mathcal{L}_{bi} = \alpha \mathcal{L}_{q2id} + (1-\alpha) \mathcal{L}_{id2q}$$
+其中 $\alpha$ 是平衡系数，通常设为0.5。$\mathcal{L}_{id2q}$ 是从文档标识符生成查询的损失：
+$$\mathcal{L}_{id2q} = -\sum_{(q,d) \in \mathcal{D}_{train}} \log p(q | id_d; \theta)$$
+双向建模的好处是多方面的：</p>
+<ul>
+<li><strong>数据效率</strong>：同一批数据可以用于两个方向的训练，提高数据利用率</li>
+<li><strong>正则化效果</strong>：D2Q任务可以看作是Q2D任务的正则化，防止模型过拟合</li>
+<li><strong>查询生成</strong>：训练好的D2Q模型可以用于生成伪查询，进一步扩充训练数据</li>
+</ul>
+<p>但双向建模也有潜在问题。两个任务可能存在冲突，特别是当使用共享参数时。一种解决方案是使用任务特定的前缀或适配器，让模型根据任务类型调整其行为。</p>
+<h3 id="512">5.1.2 多阶段训练策略</h3>
+<p>生成式检索的训练不是一蹴而就的，而是需要精心设计的多阶段流程。每个阶段都有特定的目标和挑战，前一阶段为后一阶段奠定基础。这种渐进式的训练策略源于一个关键观察：直接让随机初始化的模型同时学习语言理解、文档记忆和检索对齐几乎是不可能的。</p>
+<div class="codehilite"><pre><span></span><code>阶段1：通用语言模型预训练
+   ↓ (迁移语言理解能力)
+阶段2：文档记忆化训练
+   ↓ (建立文档-ID映射)
+阶段3：查询-文档对齐微调
+   ↓ (优化检索性能)
+阶段4：任务特定优化
+</code></pre></div>
+
+<p><strong>阶段1：通用预训练</strong></p>
+<p>第一阶段利用大规模无标注文本进行语言模型预训练。这个阶段的目标是让模型获得基础的语言理解能力，包括词汇语义、句法结构和常识知识。常用的预训练目标包括：</p>
+<ul>
+<li><strong>掩码语言建模（MLM）</strong>：随机掩盖输入中的部分词汇，要求模型预测被掩盖的内容</li>
+<li><strong>因果语言建模（CLM）</strong>：给定前文预测下一个词，适用于生成式模型架构</li>
+<li><strong>去噪自编码（DAE）</strong>：对输入添加噪声（如删除、替换、打乱），要求模型恢复原始输入</li>
+</ul>
+<p>实践中，我们通常直接使用现有的预训练模型（如T5、BART、GPT），这样可以节省大量的计算资源。选择预训练模型时需要考虑：</p>
+<ul>
+<li>模型架构是否适合生成任务（编码器-解码器 vs 纯解码器）</li>
+<li>模型规模与文档集合大小的匹配（更大的文档集需要更大的模型容量）</li>
+<li>预训练数据与目标领域的相关性（领域特定模型可能效果更好）</li>
+</ul>
+<p><strong>阶段2：文档记忆化</strong></p>
+<p>文档记忆化是生成式检索独有的关键阶段。在这个阶段，模型需要将文档集合"烙印"到参数中。这不是简单的过拟合，而是一种结构化的记忆过程。</p>
+<p>记忆化训练的核心策略：</p>
+<ul>
+<li><strong>全文档覆盖</strong>：确保每个文档都被模型"看到"足够多次（通常需要几十到几百个epoch）</li>
+<li><strong>均衡采样</strong>：避免高频文档主导训练，使用重要性采样或者固定每个文档的曝光次数</li>
+<li><strong>渐进难度</strong>：先记忆短文档和简单ID，再处理长文档和复杂ID</li>
+<li><strong>记忆验证</strong>：定期测试模型能否从文档内容准确生成ID，记忆准确率应达到90%以上</li>
+</ul>
+<p>训练技巧：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 记忆化训练的学习率调度</span>
+<span class="n">lr_schedule</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;warmup&#39;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>    <span class="c1"># 预热阶段，快速适应</span>
+    <span class="s1">&#39;main&#39;</span><span class="p">:</span> <span class="mf">5e-5</span><span class="p">,</span>      <span class="c1"># 主训练阶段，稳定记忆</span>
+    <span class="s1">&#39;refinement&#39;</span><span class="p">:</span> <span class="mf">1e-5</span> <span class="c1"># 精修阶段，巩固记忆</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>监控指标：</p>
+<ul>
+<li><strong>精确匹配率</strong>：完整正确生成ID的比例</li>
+<li><strong>前缀匹配率</strong>：正确生成ID前缀的比例（用于层次化ID）</li>
+<li><strong>记忆容量利用率</strong>：模型参数的信息熵，反映记忆效率</li>
+</ul>
+<p><strong>阶段3：检索微调</strong></p>
+<p>有了文档记忆基础后，第三阶段专注于学习查询-文档的语义对齐。这个阶段引入真实的检索任务，让模型学会根据查询的语义选择正确的文档。</p>
+<p>微调策略的关键点：</p>
+<ul>
+<li><strong>保护记忆</strong>：使用较低的学习率，避免破坏已建立的文档记忆</li>
+<li><strong>对比学习</strong>：引入负样本，让模型学会区分相关和不相关文档</li>
+<li><strong>多任务平衡</strong>：同时优化多个检索指标（如精确率、召回率、排序质量）</li>
+</ul>
+<p>数据组织：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 每个批次的数据组成</span>
+<span class="n">batch</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;positive_pairs&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="n">q1</span><span class="p">,</span> <span class="n">d1</span><span class="p">),</span> <span class="p">(</span><span class="n">q2</span><span class="p">,</span> <span class="n">d2</span><span class="p">),</span> <span class="o">...</span><span class="p">],</span>  <span class="c1"># 正样本对</span>
+    <span class="s1">&#39;hard_negatives&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="n">q1</span><span class="p">,</span> <span class="n">d1</span><span class="s1">&#39;), (q2, d2&#39;</span><span class="p">),</span> <span class="o">...</span><span class="p">],</span> <span class="c1"># 困难负样本</span>
+    <span class="s1">&#39;random_negatives&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="n">q1</span><span class="p">,</span> <span class="n">d1</span><span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="o">...</span><span class="p">],</span>         <span class="c1"># 随机负样本</span>
+    <span class="s1">&#39;weights&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">w1</span><span class="p">,</span> <span class="n">w2</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>                       <span class="c1"># 样本权重</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>损失函数设计：
+$$\mathcal{L}_{retrieval} = \mathcal{L}_{positive} + \lambda_1 \mathcal{L}_{hard_neg} + \lambda_2 \mathcal{L}_{random_neg}$$
+其中不同类型的负样本有不同的权重，困难负样本通常权重更高。</p>
+<h3 id="513">5.1.3 参数高效微调</h3>
+<p>随着预训练模型规模的不断增长（从BERT的3亿参数到GPT-3的1750亿参数），全参数微调变得越来越不现实。对于生成式检索，这个问题尤为突出：我们需要为不同的文档集合维护不同的模型，全参数微调意味着巨大的存储和计算开销。参数高效微调（Parameter-Efficient Fine-Tuning, PEFT）技术应运而生，它们只更新模型的一小部分参数，就能达到接近全参数微调的效果。</p>
+<ol>
+<li><strong>Adapter 层插入</strong></li>
+</ol>
+<p>Adapter是最早被广泛采用的参数高效方法之一。核心思想是在预训练模型的每个Transformer层中插入小型的适配器模块，冻结原始参数，只训练这些适配器：
+$$h' = h + f_{adapter}(h)$$
+其中 $f_{adapter}$ 通常是一个瓶颈结构的前馈网络：
+$$f_{adapter}(h) = W_{up} \cdot \text{ReLU}(W_{down} \cdot h)$$
+这里 $W_{down} \in \mathbb{R}^{r \times d}$ 将输入降维到低维空间，$W_{up} \in \mathbb{R}^{d \times r}$ 再映射回原始维度。瓶颈维度 $r$ 通常远小于隐藏维度 $d$（如 $r = 64$，$d = 768$）。</p>
+<p>Adapter在生成式检索中的优势：</p>
+<ul>
+<li><strong>模块化设计</strong>：可以为不同文档集训练不同的adapter，共享基础模型</li>
+<li><strong>快速切换</strong>：通过更换adapter实现快速的领域适应</li>
+<li><strong>增量学习</strong>：新文档可以通过训练新的adapter层来记忆，不影响已有知识</li>
+</ul>
+<p>实践考虑：</p>
+<ul>
+<li>Adapter的插入位置很重要，通常在自注意力层和前馈层之后各插入一个</li>
+<li>瓶颈维度的选择需要权衡：太小影响表达能力，太大失去参数效率优势</li>
+<li>可以使用不同大小的adapter处理不同复杂度的任务</li>
+</ul>
+<ol start="2">
+<li><strong>Prefix Tuning</strong></li>
+</ol>
+<p>Prefix Tuning的思想是在输入序列前添加一组可学习的"软提示"（soft prompts），这些连续向量可以引导模型的生成行为：
+$$p(y|x) = p(y | [P_\theta; x])$$
+其中 $P_\theta \in \mathbb{R}^{l \times d}$ 是长度为 $l$ 的前缀向量序列。与离散的提示词不同，这些向量是连续的、可通过梯度下降优化的。</p>
+<p>在生成式检索中，前缀可以编码任务特定信息：</p>
+<ul>
+<li><strong>文档集特征</strong>：不同领域的文档集使用不同的前缀</li>
+<li><strong>查询类型</strong>：导航型查询、信息型查询使用不同前缀</li>
+<li><strong>用户偏好</strong>：个性化检索可以为每个用户学习特定前缀</li>
+</ul>
+<p>前缀的设计策略：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 层次化前缀设计</span>
+<span class="n">prefix</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;global&#39;</span><span class="p">:</span> <span class="n">learned_vectors_global</span><span class="p">,</span>      <span class="c1"># 全局任务前缀</span>
+    <span class="s1">&#39;domain&#39;</span><span class="p">:</span> <span class="n">learned_vectors_domain</span><span class="p">,</span>      <span class="c1"># 领域特定前缀</span>
+    <span class="s1">&#39;task&#39;</span><span class="p">:</span> <span class="n">learned_vectors_task</span><span class="p">,</span>         <span class="c1"># 具体任务前缀</span>
+<span class="p">}</span>
+<span class="c1"># 拼接使用</span>
+<span class="n">full_prefix</span> <span class="o">=</span> <span class="n">concat</span><span class="p">([</span><span class="n">prefix</span><span class="p">[</span><span class="s1">&#39;global&#39;</span><span class="p">],</span> <span class="n">prefix</span><span class="p">[</span><span class="s1">&#39;domain&#39;</span><span class="p">],</span> <span class="n">prefix</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">]])</span>
+</code></pre></div>
+
+<p>优化技巧：</p>
+<ul>
+<li><strong>重参数化</strong>：通过MLP重参数化前缀，增加表达能力</li>
+<li><strong>层特定前缀</strong>：不同Transformer层使用不同的前缀向量</li>
+<li><strong>前缀初始化</strong>：使用任务相关的离散提示初始化，加速收敛</li>
+</ul>
+<ol start="3">
+<li><strong>LoRA（Low-Rank Adaptation）</strong></li>
+</ol>
+<p>LoRA是目前最流行的参数高效方法之一。其核心思想是将权重更新分解为两个低秩矩阵的乘积：
+$$W' = W + \Delta W = W + BA$$
+其中 $B \in \mathbb{R}^{d \times r}$，$A \in \mathbb{R}^{r \times k}$，秩 $r \ll \min(d, k)$。</p>
+<p>这种分解大幅减少了可训练参数：</p>
+<ul>
+<li>原始参数量：$d \times k$</li>
+<li>LoRA参数量：$r \times (d + k)$</li>
+<li>压缩比：当 $r = 8$，$d = k = 768$ 时，压缩比约为 96:1</li>
+</ul>
+<p>LoRA在生成式检索中的应用：</p>
+<ul>
+<li><strong>选择性应用</strong>：通常只在注意力层的 $W_q$ 和 $W_v$ 矩阵上应用</li>
+<li><strong>多任务学习</strong>：不同任务使用不同的LoRA权重，基础模型共享</li>
+<li><strong>动态秩调整</strong>：根据任务复杂度调整秩 $r$</li>
+</ul>
+<p>实现细节：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">LoRALayer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">init_normal</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="n">init_zeros</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>  <span class="c1"># B初始化为0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">r</span>    <span class="c1"># 缩放因子</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
+        <span class="c1"># 原始计算 + LoRA增量</span>
+        <span class="k">return</span> <span class="n">W</span> <span class="o">@</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">@</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">))</span>
+</code></pre></div>
+
+<ol start="4">
+<li><strong>混合方法与选择策略</strong></li>
+</ol>
+<p>不同的参数高效方法各有优劣，实践中常常结合使用：</p>
+<p>| 方法 | 参数效率 | 性能 | 训练速度 | 推理开销 |</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>参数效率</th>
+<th>性能</th>
+<th>训练速度</th>
+<th>推理开销</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adapter</td>
+<td>中</td>
+<td>良好</td>
+<td>快</td>
+<td>有额外计算</td>
+</tr>
+<tr>
+<td>Prefix</td>
+<td>高</td>
+<td>良好</td>
+<td>快</td>
+<td>增加序列长度</td>
+</tr>
+<tr>
+<td>LoRA</td>
+<td>高</td>
+<td>优秀</td>
+<td>快</td>
+<td>可合并无开销</td>
+</tr>
+</tbody>
+</table>
+<p>选择建议：</p>
+<ul>
+<li><strong>大规模部署</strong>：LoRA（推理时可合并到原权重，无额外开销）</li>
+<li><strong>多任务场景</strong>：Adapter（模块化设计，易于管理）</li>
+<li><strong>小数据场景</strong>：Prefix Tuning（参数最少，不易过拟合）</li>
+<li><strong>混合使用</strong>：LoRA + Prefix，结合两者优势</li>
+</ul>
+<h2 id="52">5.2 文档记忆化技术</h2>
+<p>文档记忆化是生成式检索区别于传统检索的核心特征。传统检索系统将文档存储在外部索引中，查询时进行相似度计算；而生成式检索需要将整个文档集合"压缩"到模型参数中，这是一个极具挑战性的任务。想象一下，要让一个神经网络"记住"数百万甚至数十亿个文档，并能根据查询准确"回忆"出相关文档，这需要精心设计的记忆化策略。</p>
+<h3 id="521">5.2.1 记忆化的本质</h3>
+<p>文档记忆化本质上是一个信息压缩问题。我们需要将文档集合 $\mathcal{D}$ 的信息编码到有限的参数空间 $\theta$ 中：
+$$\theta^* = \arg\min_\theta \sum_{d \in \mathcal{D}} \mathcal{L}_{mem}(d, \theta)$$
+这个优化问题面临几个根本性挑战：</p>
+<p><strong>信息论限制</strong>：
+根据信息论，存储 $N$ 个文档至少需要 $\log_2 N$ 位信息来区分它们。对于100万个文档，理论下界是20位。但实际上，由于文档内容的复杂性和查询的多样性，所需的信息量远大于此。</p>
+<p><strong>容量-泛化权衡</strong>：</p>
+<ul>
+<li><strong>过度记忆</strong>：如果模型完美记住每个文档，可能失去泛化能力，无法处理新查询</li>
+<li><strong>记忆不足</strong>：如果记忆不充分，模型无法准确生成文档ID，检索失败</li>
+</ul>
+<p><strong>记忆干扰问题</strong>：
+当模型试图记忆新文档时，可能会干扰已记忆的文档，这被称为"灾难性干扰"（catastrophic interference）。特别是当文档内容相似时，这种干扰更加严重。</p>
+<p><strong>记忆的层次性</strong>：
+人类记忆是层次化的：我们先记住大类，再记住细节。生成式检索也应该采用类似策略：</p>
+<ul>
+<li><strong>语义层</strong>：记忆文档的主题、类别等高层语义</li>
+<li><strong>内容层</strong>：记忆文档的具体内容特征</li>
+<li><strong>标识层</strong>：记忆文档的唯一标识符</li>
+</ul>
+<p>理解这些本质问题后，我们可以设计更有效的记忆化策略。</p>
+<h3 id="522">5.2.2 分层记忆策略</h3>
+<p>分层记忆是提高记忆效率的关键技术。通过将记忆任务分解为多个层次，我们可以让模型更高效地利用参数容量。</p>
+<ol>
+<li><strong>文档聚类与层次化标识符</strong></li>
+</ol>
+<p>层次化标识符设计是分层记忆的基础。一个好的层次结构应该反映文档的语义关系：</p>
+<div class="codehilite"><pre><span></span><code>Level 1: 领域 (如 &quot;科技&quot;, &quot;体育&quot;, &quot;娱乐&quot;)
+    ↓
+Level 2: 主题 (如 &quot;人工智能&quot;, &quot;篮球&quot;, &quot;电影&quot;)
+    ↓
+Level 3: 子主题 (如 &quot;深度学习&quot;, &quot;NBA&quot;, &quot;动作片&quot;)
+    ↓
+Level 4: 具体文档 ID
+</code></pre></div>
+
+<p>这种设计的优势：</p>
+<ul>
+<li><strong>参数共享</strong>：同一类别的文档共享高层表示，减少参数冗余</li>
+<li><strong>渐进生成</strong>：模型可以先生成大类，再逐步细化，降低生成难度</li>
+<li><strong>错误容忍</strong>：即使底层ID生成错误，高层类别正确仍能返回相关结果</li>
+</ul>
+<p>构建层次结构的方法：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 基于聚类的层次构建</span>
+<span class="k">def</span> <span class="nf">build_hierarchy</span><span class="p">(</span><span class="n">documents</span><span class="p">,</span> <span class="n">num_levels</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="n">hierarchy</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">current_docs</span> <span class="o">=</span> <span class="n">documents</span>
+
+    <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_levels</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="o">&lt;</span> <span class="n">num_levels</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># 聚类产生下一层</span>
+            <span class="n">clusters</span> <span class="o">=</span> <span class="n">kmeans_clustering</span><span class="p">(</span><span class="n">current_docs</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="n">branch_factor</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">cluster_id</span><span class="p">,</span> <span class="n">cluster_docs</span> <span class="ow">in</span> <span class="n">clusters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">parent_path</span> <span class="o">=</span> <span class="n">get_parent_path</span><span class="p">(</span><span class="n">cluster_id</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+                <span class="n">hierarchy</span><span class="p">[</span><span class="n">parent_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">cluster_docs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># 最底层分配唯一ID</span>
+            <span class="k">for</span> <span class="n">doc_idx</span><span class="p">,</span> <span class="n">doc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">current_docs</span><span class="p">):</span>
+                <span class="n">doc_path</span> <span class="o">=</span> <span class="n">get_full_path</span><span class="p">(</span><span class="n">doc_idx</span><span class="p">)</span>
+                <span class="n">hierarchy</span><span class="p">[</span><span class="n">doc_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">doc</span>
+
+    <span class="k">return</span> <span class="n">hierarchy</span>
+</code></pre></div>
+
+<ol start="2">
+<li><strong>渐进式记忆</strong></li>
+</ol>
+<p>渐进式记忆策略模仿人类学习过程，从简单到复杂，从重要到次要：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">progressive_memorization</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">documents</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="c1"># 阶段1：记忆核心文档（top 10%）</span>
+    <span class="n">core_docs</span> <span class="o">=</span> <span class="n">select_core_documents</span><span class="p">(</span><span class="n">documents</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span> <span class="o">//</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">core_docs</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+
+    <span class="c1"># 阶段2：扩展到常见文档（top 50%）</span>
+    <span class="n">common_docs</span> <span class="o">=</span> <span class="n">select_common_documents</span><span class="p">(</span><span class="n">documents</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span> <span class="o">//</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">common_docs</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">5e-5</span><span class="p">)</span>
+
+    <span class="c1"># 阶段3：包含所有文档</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span> <span class="o">//</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">documents</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+
+        <span class="c1"># 定期回放核心文档，防止遗忘</span>
+        <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">core_docs</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+</code></pre></div>
+
+<p>文档重要性的评估标准：</p>
+<ul>
+<li><strong>查询频率</strong>：被查询次数多的文档更重要</li>
+<li><strong>文档质量</strong>：权威性、完整性高的文档优先</li>
+<li><strong>时效性</strong>：新发布的文档可能需要优先记忆</li>
+<li><strong>多样性</strong>：确保各类别都有代表性文档被记忆</li>
+</ul>
+<ol start="3">
+<li><strong>记忆路由机制</strong></li>
+</ol>
+<p>为了更高效地管理记忆，可以设计专门的路由机制，将不同类型的文档路由到不同的记忆模块：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">MemoryRouter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_experts</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">router</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">num_experts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experts</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">([</span>
+            <span class="n">ExpertModule</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_experts</span><span class="p">)</span>
+        <span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc_embedding</span><span class="p">):</span>
+        <span class="c1"># 计算路由权重</span>
+        <span class="n">routing_weights</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">router</span><span class="p">(</span><span class="n">doc_embedding</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Top-K专家选择</span>
+        <span class="n">top_k_weights</span><span class="p">,</span> <span class="n">top_k_indices</span> <span class="o">=</span> <span class="n">routing_weights</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># 混合专家输出</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">weight</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">top_k_weights</span><span class="p">,</span> <span class="n">top_k_indices</span><span class="p">):</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">experts</span><span class="p">[</span><span class="n">idx</span><span class="p">](</span><span class="n">doc_embedding</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span>
+</code></pre></div>
+
+<p>这种设计允许模型自动学习如何分配记忆资源，不同专家可以专门处理不同类型的文档。</p>
+<h3 id="523">5.2.3 记忆增强技术</h3>
+<ol>
+<li><strong>外部记忆模块</strong></li>
+</ol>
+<p>引入可微分的外部记忆：
+$$M \in \mathbb{R}^{N \times d}$$
+其中 $N$ 是记忆槽位数，$d$ 是向量维度。</p>
+<p>读取操作：
+$$r = \sum_{i=1}^{N} \alpha_i M_i$$
+其中 $\alpha_i$ 是注意力权重。</p>
+<ol start="2">
+<li><strong>稀疏激活</strong></li>
+</ol>
+<p>使用稀疏激活减少干扰：
+$$h = \text{TopK}(\text{ReLU}(Wx + b))$$
+只激活最相关的神经元，避免记忆冲突。</p>
+<h3 id="524">5.2.4 防止灾难性遗忘</h3>
+<p>当新文档加入时，需要防止遗忘已学习的文档：</p>
+<ol>
+<li>
+<p><strong>弹性权重巩固（EWC）</strong>
+$$\mathcal{L}_{EWC} = \mathcal{L}_{new} + \lambda \sum_i F_i (\theta_i - \theta_i^*)^2$$
+其中 $F_i$ 是 Fisher 信息矩阵的对角元素。</p>
+</li>
+<li>
+<p><strong>记忆回放</strong></p>
+</li>
+</ol>
+<p>定期回放旧文档样本：
+$$\mathcal{L}_{total} = \mathcal{L}_{current} + \beta \mathcal{L}_{replay}$$</p>
+<h2 id="53">5.3 查询生成与数据增强</h2>
+<h3 id="531">5.3.1 伪查询生成</h3>
+<p>生成式检索的训练需要大量的查询-文档对。当真实查询稀缺时，可以自动生成伪查询：</p>
+<ol>
+<li><strong>基于文档的查询生成</strong></li>
+</ol>
+<p>使用序列到序列模型从文档生成可能的查询：
+$$q_{pseudo} = \arg\max_q p(q | d; \phi)$$
+其中 $\phi$ 是查询生成模型的参数。</p>
+<ol start="2">
+<li><strong>模板基查询扩展</strong></li>
+</ol>
+<p>使用预定义模板生成查询变体：</p>
+<div class="codehilite"><pre><span></span><code>原始查询: &quot;深度学习教程&quot;
+变体1: &quot;如何学习深度学习&quot;
+变体2: &quot;深度学习入门指南&quot;
+变体3: &quot;深度学习基础知识&quot;
+</code></pre></div>
+
+<ol start="3">
+<li><strong>回译增强（Back-translation）</strong></li>
+</ol>
+<p>通过翻译往返生成查询变体：</p>
+<div class="codehilite"><pre><span></span><code>中文 → 英文 → 中文
+&quot;机器学习算法&quot; → &quot;machine learning algorithms&quot; → &quot;机器学习算法/ML算法&quot;
+</code></pre></div>
+
+<h3 id="532">5.3.2 负样本构造策略</h3>
+<p>有效的负样本对于训练判别能力至关重要：</p>
+<ol>
+<li><strong>随机负采样</strong></li>
+</ol>
+<p>从文档集合中随机采样负样本：
+$$\mathcal{D}_{neg}^{random} = \text{RandomSample}(\mathcal{D} \setminus \{d^+\}, k)$$</p>
+<ol start="2">
+<li><strong>困难负样本挖掘</strong></li>
+</ol>
+<p>选择与查询相似但不相关的文档：
+$$d_{hard}^- = \arg\max_{d \in \mathcal{D}^-} \text{sim}(q, d)$$
+其中 $\text{sim}$ 是相似度函数（如余弦相似度）。</p>
+<ol start="3">
+<li><strong>批内负样本（In-batch Negatives）</strong></li>
+</ol>
+<p>利用批次内其他样本的文档作为负样本：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 批次大小为 B</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+    <span class="n">positive</span> <span class="o">=</span> <span class="n">docs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># 正样本</span>
+    <span class="n">negatives</span> <span class="o">=</span> <span class="n">docs</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">docs</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># 其他 B-1 个作为负样本</span>
+</code></pre></div>
+
+<h3 id="533">5.3.3 数据增强技术</h3>
+<ol>
+<li><strong>文档扰动</strong></li>
+</ol>
+<p>对文档内容进行轻微修改：</p>
+<ul>
+<li><strong>词汇替换</strong>：用同义词替换部分词汇</li>
+<li><strong>句子重排</strong>：改变句子顺序但保持语义</li>
+<li><strong>摘要生成</strong>：使用文档摘要作为额外训练样本</li>
+</ul>
+<ol start="2">
+<li><strong>查询改写</strong></li>
+</ol>
+<p>生成语义相同但表达不同的查询：</p>
+<div class="codehilite"><pre><span></span><code>原始: &quot;Python编程入门&quot;
+改写1: &quot;如何开始学习Python&quot;
+改写2: &quot;Python初学者教程&quot;
+改写3: &quot;零基础学Python&quot;
+</code></pre></div>
+
+<ol start="3">
+<li><strong>跨语言增强</strong></li>
+</ol>
+<p>利用多语言数据：
+$$\mathcal{L}_{cross} = \mathcal{L}(q_{en}, d_{zh}) + \mathcal{L}(q_{zh}, d_{en})$$</p>
+<h3 id="534">5.3.4 课程学习策略</h3>
+<p>按难度递增的顺序组织训练数据：</p>
+<ol>
+<li><strong>简单到复杂</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="err">阶段</span><span class="mi">1</span><span class="o">:</span><span class="w"> </span><span class="err">精确匹配查询</span><span class="w"> </span><span class="o">(</span><span class="n">exact</span><span class="w"> </span><span class="n">match</span><span class="o">)</span>
+<span class="err">阶段</span><span class="mi">2</span><span class="o">:</span><span class="w"> </span><span class="err">同义词查询</span><span class="w"> </span><span class="o">(</span><span class="n">synonym</span><span class="w"> </span><span class="n">queries</span><span class="o">)</span><span class="w">  </span>
+<span class="err">阶段</span><span class="mi">3</span><span class="o">:</span><span class="w"> </span><span class="err">语义相关查询</span><span class="w"> </span><span class="o">(</span><span class="n">semantic</span><span class="w"> </span><span class="n">queries</span><span class="o">)</span>
+<span class="err">阶段</span><span class="mi">4</span><span class="o">:</span><span class="w"> </span><span class="err">复杂推理查询</span><span class="w"> </span><span class="o">(</span><span class="n">reasoning</span><span class="w"> </span><span class="n">queries</span><span class="o">)</span>
+</code></pre></div>
+
+<ol start="2">
+<li><strong>动态难度调整</strong></li>
+</ol>
+<p>根据模型性能自适应调整样本难度：
+$$p(sample_i) \propto \exp(-\alpha \cdot \text{accuracy}_i)$$
+准确率高的样本降低采样概率，让模型专注于困难样本。</p>
+<h2 id="54">5.4 高级话题：对抗训练与鲁棒性提升</h2>
+<h3 id="541">5.4.1 对抗样本生成</h3>
+<p>生成式检索模型容易受到对抗攻击。通过对抗训练可以提升鲁棒性：</p>
+<ol>
+<li><strong>查询扰动攻击</strong></li>
+</ol>
+<p>在查询嵌入空间添加对抗扰动：
+$$q_{adv} = q + \epsilon \cdot \text{sign}(\nabla_q \mathcal{L})$$
+其中 $\epsilon$ 控制扰动强度。</p>
+<ol start="2">
+<li><strong>文档污染攻击</strong></li>
+</ol>
+<p>恶意修改文档内容以操纵检索结果：</p>
+<div class="codehilite"><pre><span></span><code>原始文档: &quot;深度学习是机器学习的分支...&quot;
+污染文档: &quot;深度学习是机器学习的分支... [隐藏关键词: 赌博、贷款]&quot;
+</code></pre></div>
+
+<h3 id="542">5.4.2 防御机制</h3>
+<ol>
+<li>
+<p><strong>对抗训练目标</strong>
+$$\mathcal{L}_{robust} = \mathcal{L}_{clean} + \lambda \max_{|\delta| \leq \epsilon} \mathcal{L}(x + \delta, y)$$
+同时优化干净样本和对抗样本的性能。</p>
+</li>
+<li>
+<p><strong>梯度正则化</strong></p>
+</li>
+</ol>
+<p>限制模型对输入扰动的敏感度：
+$$\mathcal{L}_{grad} = |\nabla_x \mathcal{L}|_2^2$$</p>
+<ol start="3">
+<li><strong>集成防御</strong></li>
+</ol>
+<p>训练多个模型并集成预测：
+$$p_{ensemble}(d|q) = \frac{1}{M} \sum_{i=1}^{M} p_i(d|q)$$</p>
+<h3 id="543">5.4.3 鲁棒性评估</h3>
+<ol>
+<li><strong>扰动鲁棒性测试</strong></li>
+</ol>
+<p>评估模型对不同类型扰动的抵抗力：</p>
+<ul>
+<li>字符级扰动（拼写错误）</li>
+<li>词级扰动（同义词替换）</li>
+<li>句子级扰动（改写）</li>
+</ul>
+<ol start="2">
+<li><strong>分布偏移适应</strong></li>
+</ol>
+<p>测试模型对数据分布变化的适应能力：
+$$\text{RobustScore} = \frac{\text{Performance}_{ood}}{\text{Performance}_{id}}$$
+其中 OOD 是分布外数据，ID 是分布内数据。</p>
+<h2 id="55">5.5 工业案例：阿里巴巴电商搜索的生成式改造</h2>
+<h3 id="_1">背景与挑战</h3>
+<p>阿里巴巴的电商搜索系统每天处理数十亿次查询，覆盖数亿商品。传统的倒排索引+排序的两阶段架构面临以下挑战：</p>
+<ol>
+<li><strong>语义鸿沟</strong>：用户查询与商品标题存在表达差异</li>
+<li><strong>长尾查询</strong>：大量低频查询缺乏训练数据  </li>
+<li><strong>实时性要求</strong>：新商品需要快速被检索到</li>
+<li><strong>多模态需求</strong>：用户期望图片搜索、语音搜索</li>
+</ol>
+<h3 id="_2">生成式检索架构</h3>
+<p>阿里巴巴在2022-2023年逐步引入生成式检索，采用混合架构：</p>
+<div class="codehilite"><pre><span></span><code>用户查询
+    ↓
+[查询理解层]
+    ↓
+并行检索 ┌─────────────┬──────────────┐
+        │传统倒排索引│ 生成式检索器 │
+        └─────────────┴──────────────┘
+                ↓
+            [融合排序]
+                ↓
+            搜索结果
+</code></pre></div>
+
+<h3 id="_3">关键技术创新</h3>
+<ol>
+<li><strong>商品ID体系重构</strong></li>
+</ol>
+<p>从随机ID改为语义化层次ID：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">原始</span><span class="n">ID</span><span class="o">:</span><span class="w"> </span><span class="n">SKU_20394857</span>
+<span class="err">新</span><span class="n">ID</span><span class="o">:</span><span class="w"> </span><span class="err">电子</span><span class="sr">/手机/苹果/i</span><span class="n">Phone15Pro</span>
+</code></pre></div>
+
+<p>这种设计使得模型可以通过前缀共享学习类目知识。</p>
+<ol start="2">
+<li><strong>亿级商品的增量学习</strong></li>
+</ol>
+<p>采用"基座模型+增量适配器"架构：</p>
+<ul>
+<li>基座模型：覆盖核心80%商品（更新周期：月）</li>
+<li>增量适配器：处理新商品和季节性商品（更新周期：小时）</li>
+</ul>
+<ol start="3">
+<li><strong>查询意图解耦</strong></li>
+</ol>
+<p>将复杂查询分解为多个子意图：</p>
+<div class="codehilite"><pre><span></span><code>原始查询: &quot;适合送给妈妈的生日礼物不要太贵&quot;
+分解:
+
+- 商品属性: 礼物
+- 使用场景: 生日
+- 目标用户: 中年女性
+- 价格约束: 中低价位
+</code></pre></div>
+
+<p>每个子意图独立生成候选，最后融合。</p>
+<h3 id="_4">训练优化策略</h3>
+<ol>
+<li><strong>多任务学习框架</strong>
+$$\mathcal{L}_{total} = \lambda_1 \mathcal{L}_{retrieval} + \lambda_2 \mathcal{L}_{click} + \lambda_3 \mathcal{L}_{purchase}$$</li>
+</ol>
+<p>同时优化检索相关性、点击率和购买转化。</p>
+<ol start="2">
+<li><strong>用户行为序列建模</strong></li>
+</ol>
+<p>利用用户历史行为增强查询理解：</p>
+<div class="codehilite"><pre><span></span><code><span class="n">user_embedding</span> <span class="o">=</span> <span class="n">encode_behavior_sequence</span><span class="p">(</span><span class="n">clicks</span><span class="p">,</span> <span class="n">purchases</span><span class="p">)</span>
+<span class="n">query_enhanced</span> <span class="o">=</span> <span class="n">concat</span><span class="p">([</span><span class="n">query</span><span class="p">,</span> <span class="n">user_embedding</span><span class="p">])</span>
+</code></pre></div>
+
+<ol start="3">
+<li><strong>负反馈学习</strong></li>
+</ol>
+<p>从"零结果"查询中学习：</p>
+<ul>
+<li>收集导致无结果的查询</li>
+<li>分析失败原因（拼写错误、新概念、表达差异）</li>
+<li>生成纠正样本进行训练</li>
+</ul>
+<h3 id="_5">实施效果</h3>
+<p>经过一年的迭代优化，生成式检索在阿里巴巴电商搜索中取得显著成果：</p>
+<ul>
+<li><strong>覆盖率提升</strong>：长尾查询覆盖率提升35%</li>
+<li><strong>相关性改善</strong>：用户满意度提升8.2%</li>
+<li><strong>新品曝光</strong>：新商品在上架24小时内的曝光量提升60%</li>
+<li><strong>计算成本</strong>：相比纯深度模型排序降低40%</li>
+</ul>
+<h3 id="_6">经验教训</h3>
+<ol>
+<li><strong>渐进式迁移</strong>：不要试图一次性替换整个系统，而是逐步引入生成式组件</li>
+<li><strong>混合架构优势</strong>：传统方法在精确匹配上仍有优势，混合架构能结合两者优点</li>
+<li><strong>数据质量关键</strong>：用户行为数据的清洗和标注质量直接影响模型效果</li>
+<li><strong>在线学习必要</strong>：电商场景变化快，需要持续的在线学习能力</li>
+</ol>
+<h2 id="_7">本章小结</h2>
+<p>本章深入探讨了生成式检索的训练策略，涵盖了从预训练到部署的完整流程。关键要点包括：</p>
+<p><strong>核心概念</strong>：</p>
+<ul>
+<li>生成式检索将检索问题转化为序列生成任务，需要专门的训练策略</li>
+<li>多阶段训练（预训练→记忆化→微调）是提升性能的关键</li>
+<li>文档记忆化是生成式检索的核心挑战，需要在有限参数空间编码海量信息</li>
+</ul>
+<p><strong>关键技术</strong>：</p>
+<ul>
+<li><strong>预训练策略</strong>：结合语言建模和文档ID预测的多任务学习</li>
+<li><strong>记忆化技术</strong>：分层编码、外部记忆、防止灾难性遗忘</li>
+<li><strong>数据增强</strong>：伪查询生成、负样本构造、课程学习</li>
+<li><strong>鲁棒性提升</strong>：对抗训练、梯度正则化、集成防御</li>
+</ul>
+<p><strong>实践启示</strong>：</p>
+<ul>
+<li>参数高效微调（LoRA、Adapter）对大模型至关重要</li>
+<li>混合架构结合传统检索和生成式方法效果最佳</li>
+<li>持续学习和增量更新是工业部署的必要条件</li>
+</ul>
+<h2 id="_8">练习题</h2>
+<h3 id="_9">基础题</h3>
+<p><strong>练习5.1</strong>：解释为什么生成式检索需要文档记忆化阶段？如果直接从预训练模型开始查询-文档对齐训练会有什么问题？</p>
+<details markdown="1">
+<summary>提示（点击展开）</summary>
+<p>思考模型参数容量与文档集合规模的关系，以及冷启动问题。
+</details></p>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p>文档记忆化阶段必要的原因：</p>
+<ol>
+<li>参数容量限制：模型需要在有限参数中编码整个文档集合的信息</li>
+<li>冷启动问题：没有记忆化，模型无法生成有效的文档ID</li>
+<li>训练效率：直接对齐训练收敛极慢，因为模型需要同时学习记忆和对齐</li>
+<li>泛化能力：先记忆后对齐有助于模型建立文档空间的结构化理解</li>
+</ol>
+</details>
+<p><strong>练习5.2</strong>：设计一个负样本构造策略，使得模型能够区分语义相似但实际不相关的文档。</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑同一类别下的不同实体，或者表面相似但语义不同的文档。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p>策略设计：</p>
+<ol>
+<li>类内负采样：从相同类别选择不同实体（如"iPhone 14"vs"iPhone 15"）</li>
+<li>关键词重叠负样本：选择关键词重叠但主题不同的文档</li>
+<li>语义相似负样本：使用预训练编码器找到余弦相似度0.7-0.9之间的文档</li>
+<li>时间敏感负样本：对时效性查询，选择过期的相关文档作为负样本</li>
+</ol>
+</details>
+<p><strong>练习5.3</strong>：计算题：假设模型有10B参数，每个参数32位，需要记忆1000万个文档，每个文档平均需要多少bit的参数容量？</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>计算总参数容量，然后除以文档数量。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p>计算过程：</p>
+<ul>
+<li>总参数容量 = 10B × 32 bits = 320B bits</li>
+<li>文档数 = 10M = 10^7</li>
+<li>每个文档容量 = 320B / 10M = 32,000 bits = 4KB
+这说明即使是大模型，每个文档的平均容量也很有限，需要高效编码。</li>
+</ul>
+</details>
+<h3 id="_10">挑战题</h3>
+<p><strong>练习5.4</strong>：设计一个增量学习方案，使得生成式检索模型能够每天接收新文档而不需要完全重训练。</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑参数隔离、知识蒸馏、记忆回放等技术的组合。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p>增量学习方案设计：</p>
+<ol>
+<li>双模型架构：维护基础模型（月更新）+ 增量模型（日更新）</li>
+<li>参数隔离：为新文档分配专用的adapter参数</li>
+<li>知识蒸馏：从旧模型蒸馏知识防止遗忘</li>
+<li>采样策略：80%新文档 + 20%旧文档回放</li>
+<li>ID预留：预留ID空间给新文档，避免ID冲突</li>
+<li>定期合并：每月将增量知识合并到基础模型</li>
+</ol>
+</details>
+<p><strong>练习5.5</strong>：分析对抗训练在生成式检索中的计算开销，并提出一个高效的对抗训练方案。</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑对抗样本生成的成本和训练时间的权衡。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p>计算开销分析：</p>
+<ul>
+<li>标准训练：1次前向 + 1次反向</li>
+<li>对抗训练：2次前向（干净+对抗）+ 2次反向 + 对抗样本生成</li>
+<li>开销增加：约2.5-3倍</li>
+</ul>
+<p>高效方案：</p>
+<ol>
+<li>异步对抗样本生成：使用独立进程预生成对抗样本</li>
+<li>对抗样本缓存：重用历史对抗样本</li>
+<li>选择性对抗：只对高价值查询进行对抗训练</li>
+<li>Fast Gradient Method：使用单步攻击而非迭代攻击</li>
+<li>周期性对抗：每N个batch才进行一次对抗训练</li>
+</ol>
+</details>
+<p><strong>练习5.6</strong>：开放思考题：如何设计一个自适应的训练策略，根据模型在不同类型查询上的表现动态调整训练重点？</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑在线评估、多臂老虎机、元学习等方法。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p>自适应训练策略设计：</p>
+<ol>
+<li>性能监控：实时跟踪不同查询类型的准确率</li>
+<li>动态采样：根据性能反比例调整各类查询的采样权重</li>
+<li>难度感知：识别困难样本，增加其训练频率</li>
+<li>多臂老虎机：将不同训练策略视为臂，动态选择</li>
+<li>元学习器：训练一个元模型预测最优训练策略</li>
+<li>在线A/B测试：并行训练多个变体，选择最优</li>
+<li>反馈循环：收集用户反馈，识别失败模式并针对性改进</li>
+</ol>
+</details>
+<h2 id="_11">常见陷阱与错误</h2>
+<h3 id="1">1. 记忆化不充分</h3>
+<p><strong>问题</strong>：模型在训练时表现良好，但推理时无法生成有效的文档ID
+<strong>原因</strong>：记忆化阶段训练不足，模型没有真正"记住"文档
+<strong>解决</strong>：增加记忆化轮数，使用更低的学习率，验证模型能否从内容重建ID</p>
+<h3 id="2">2. 负样本过于简单</h3>
+<p><strong>问题</strong>：模型在测试集上表现差，容易返回语义无关但表面相似的文档
+<strong>原因</strong>：训练时的负样本过于简单（如随机采样），模型没有学会细粒度区分
+<strong>解决</strong>：使用困难负样本挖掘，增加语义相似但不相关的负样本</p>
+<h3 id="3">3. 过拟合查询分布</h3>
+<p><strong>问题</strong>：模型对训练集中的高频查询表现很好，但泛化能力差
+<strong>原因</strong>：训练数据分布不均，模型过度拟合高频模式
+<strong>解决</strong>：使用查询生成和数据增强，平衡训练数据分布</p>
+<h3 id="4">4. 灾难性遗忘</h3>
+<p><strong>问题</strong>：增量学习新文档后，模型忘记了旧文档
+<strong>原因</strong>：没有适当的记忆保护机制
+<strong>解决</strong>：使用EWC、记忆回放或参数隔离技术</p>
+<h3 id="5_1">5. 解码效率低下</h3>
+<p><strong>问题</strong>：生成式检索推理速度慢，无法满足在线服务要求
+<strong>原因</strong>：自回归解码本质上是串行的，beam search进一步增加计算量
+<strong>解决</strong>：使用前缀树约束、非自回归解码或缓存机制</p>
+<h2 id="_12">最佳实践检查清单</h2>
+<h3 id="_13">训练前准备</h3>
+<ul>
+<li>[ ] 文档ID设计是否考虑了语义信息和层次结构？</li>
+<li>[ ] 是否准备了充足的查询-文档对训练数据？</li>
+<li>[ ] 是否设计了合理的评估指标和测试集？</li>
+<li>[ ] 是否确定了模型规模与文档集合的匹配关系？</li>
+</ul>
+<h3 id="_14">训练策略</h3>
+<ul>
+<li>[ ] 是否采用了多阶段训练（预训练→记忆化→微调）？</li>
+<li>[ ] 是否使用了参数高效的微调方法（LoRA/Adapter）？</li>
+<li>[ ] 是否设计了有效的负样本构造策略？</li>
+<li>[ ] 是否应用了数据增强技术？</li>
+<li>[ ] 是否考虑了防止灾难性遗忘的机制？</li>
+</ul>
+<h3 id="_15">优化技巧</h3>
+<ul>
+<li>[ ] 是否使用了课程学习逐步增加训练难度？</li>
+<li>[ ] 是否监控了训练过程中的记忆化程度？</li>
+<li>[ ] 是否平衡了不同类型查询的训练比例？</li>
+<li>[ ] 是否定期评估模型的鲁棒性？</li>
+</ul>
+<h3 id="_16">工程实践</h3>
+<ul>
+<li>[ ] 是否设计了增量更新机制？</li>
+<li>[ ] 是否优化了推理效率（前缀树、缓存）？</li>
+<li>[ ] 是否准备了回退机制（混合检索）？</li>
+<li>[ ] 是否建立了监控和告警系统？</li>
+<li>[ ] 是否考虑了A/B测试方案？</li>
+</ul>
+<h3 id="_17">部署验证</h3>
+<ul>
+<li>[ ] 是否在真实数据上验证了模型效果？</li>
+<li>[ ] 是否测试了模型的延迟和吞吐量？</li>
+<li>[ ] 是否评估了模型的资源消耗？</li>
+<li>[ ] 是否准备了模型降级方案？</li>
+<li>[ ] 是否制定了持续优化计划？</li>
+</ul>
+            </article>
+            
+            <nav class="page-nav"><a href="chapter4.html" class="nav-link prev">← 第4章：文档表示与标识符生成</a><a href="chapter6.html" class="nav-link next">第6章：解码策略与推理优化 →</a></nav>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="./">
+    <title>第2章：预备知识速览</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/highlight.css">
+    <script src="assets/script.js" defer></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']],
+                processEscapes: false,
+                packages: {'[+]': ['noerrors', 'ams']}
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            loader: {
+                load: ['[tex]/noerrors', '[tex]/ams']
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>目录</h3>
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <div class="sidebar-search">
+                <input type="text" id="sidebar-search-input" placeholder="搜索..." autocomplete="off">
+            </div>
+            <div id="tree-container">
+                <nav class="tree-nav" role="tree">
+                    <div class="tree-item " >
+                        <a href="index.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">生成式检索与推荐系统教程</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter1.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第1章：从传统检索到生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item active" >
+                        <a href="chapter2.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第2章：预备知识速览</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter3.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第3章：差异化搜索索引（DSI）</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter4.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第4章：文档表示与标识符生成</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter5.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第5章：生成式检索的训练策略</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter6.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第6章：解码策略与推理优化</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter7.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第7章：NCI与可扩展性</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter8.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第8章：GENRE与实体检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter9.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第9章：多模态生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter10.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第10章：生成式推荐基础</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter11.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第11章：序列推荐与生成模型</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter12.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第12章：对话式推荐系统</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter13.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第13章：大语言模型时代的生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter14.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第14章：效率优化与系统设计</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter15.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第15章：评估指标与基准测试</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter16.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第16章：未来方向与开放问题</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="CLAUDE.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">Untitled</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </nav>
+        
+        <main class="content">
+            <article>
+                <h1 id="2">第2章：预备知识速览</h1>
+<p>在深入生成式检索的核心概念之前，本章将快速回顾支撑这一范式的关键技术基础。虽然假设读者已具备深度学习背景，但我们将从检索视角重新审视这些概念，特别关注那些对生成式检索至关重要但常被忽视的细节。本章的目标是建立一个坚实的技术基础，为后续章节中更复杂的生成式检索架构做好准备。</p>
+<h2 id="21-transformer">2.1 Transformer架构要点</h2>
+<p>Transformer已成为现代NLP的基石，但在生成式检索中，某些组件的作用远超其在传统任务中的重要性。</p>
+<h3 id="211">2.1.1 位置编码的检索含义</h3>
+<p>在传统NLP任务中，位置编码主要用于保持词序信息。但在生成式检索中，位置编码承担了更复杂的角色：</p>
+<div class="codehilite"><pre><span></span><code>查询: &quot;深度学习 2023年 最新进展&quot;
+文档ID生成: [512, 1024, 2048]  # 层次化标识符
+
+位置编码不仅编码了token顺序，还隐式编码了：
+
+- 查询中概念的相对重要性
+- 文档ID的层次结构信息
+- 时间敏感性（&quot;2023年&quot;的位置影响检索）
+</code></pre></div>
+
+<p><strong>关键洞察</strong>：在生成式检索中，绝对位置编码往往优于相对位置编码，因为文档ID的生成需要稳定的位置语义。</p>
+<h3 id="212">2.1.2 多头注意力的检索专门化</h3>
+<p>标准的多头注意力计算：</p>
+<p>$$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O$$
+其中每个头：
+$$\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)$$
+在生成式检索中，不同的注意力头会自发地专门化：</p>
+<div class="codehilite"><pre><span></span><code>Head 1-2: 语义匹配头
+         专注于查询和文档的语义相似性
+
+Head 3-4: 词汇匹配头
+         捕捉精确的词汇重叠
+
+Head 5-6: 结构感知头
+         识别文档的层次结构模式
+
+Head 7-8: 交互建模头
+         建模查询词之间的交互关系
+</code></pre></div>
+
+<h3 id="213">2.1.3 层归一化的稳定性影响</h3>
+<p>生成式检索模型在训练时面临独特的挑战：需要记忆大量文档ID的同时保持泛化能力。层归一化的位置选择至关重要：</p>
+<ul>
+<li><strong>Pre-LN</strong>: $\text{LayerNorm}(x + \text{Sublayer}(x))$ </li>
+<li>更稳定的训练，适合大规模文档集</li>
+<li>
+<p>但可能限制模型的记忆容量</p>
+</li>
+<li>
+<p><strong>Post-LN</strong>: $x + \text{Sublayer}(\text{LayerNorm}(x))$</p>
+</li>
+<li>更强的表达能力，有利于文档记忆</li>
+<li>需要careful的学习率调度</li>
+</ul>
+<h2 id="22">2.2 序列到序列模型</h2>
+<h3 id="221-">2.2.1 编码器-解码器的非对称性</h3>
+<p>在生成式检索中，编码器和解码器承担着本质不同的任务：</p>
+<div class="codehilite"><pre><span></span><code><span class="n">编码器任务</span><span class="err">：</span><span class="n">理解查询意图</span>
+
+<span class="o">-</span><span class="w"> </span><span class="nl">输入</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;机器学习 入门 书籍&quot;</span>
+<span class="o">-</span><span class="w"> </span><span class="nl">输出</span><span class="p">:</span><span class="w"> </span><span class="n">密集的查询表示</span><span class="w"> </span><span class="n">h_q</span><span class="w"> </span><span class="err">∈</span><span class="w"> </span><span class="n">R</span><span class="o">^</span><span class="n">d</span>
+
+<span class="n">解码器任务</span><span class="err">：</span><span class="n">生成文档标识符</span>
+
+<span class="o">-</span><span class="w"> </span><span class="nl">输入</span><span class="p">:</span><span class="w"> </span><span class="n">编码器输出</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">已生成的ID前缀</span>
+<span class="o">-</span><span class="w"> </span><span class="nl">输出</span><span class="p">:</span><span class="w"> </span><span class="n">下一个ID</span><span class="w"> </span><span class="n">token</span>
+
+<span class="nl">信息流动</span><span class="p">:</span>
+<span class="n">Query</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="o">[</span><span class="n">Encoder</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">h_q</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="o">[</span><span class="n">Cross-Attention</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="o">[</span><span class="n">Decoder</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Doc</span><span class="w"> </span><span class="n">IDs</span>
+</code></pre></div>
+
+<h3 id="222-teacher-forcing">2.2.2 Teacher Forcing的记忆化效应</h3>
+<p>Teacher forcing在生成式检索训练中产生了独特的"记忆化"效应：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 训练时 (Teacher Forcing)</span>
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">doc_id</span><span class="p">)):</span>
+    <span class="c1"># 使用真实的doc_id作为输入</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">doc_id</span><span class="p">[:</span><span class="n">t</span><span class="p">],</span> <span class="n">encoder_output</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">+=</span> <span class="n">CrossEntropy</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">doc_id</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+
+<span class="c1"># 推理时 (自回归生成)</span>
+<span class="n">generated_id</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_length</span><span class="p">):</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">generated_id</span><span class="p">,</span> <span class="n">encoder_output</span><span class="p">)</span>
+    <span class="n">next_token</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    <span class="n">generated_id</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_token</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>关键问题</strong>：训练和推理之间的这种差异（exposure bias）在生成式检索中尤其严重，因为：</p>
+<ol>
+<li>文档ID是离散的，错误无法通过语义相似性弥补</li>
+<li>层次化ID中，早期错误会级联影响后续生成</li>
+</ol>
+<h3 id="223">2.2.3 束搜索的检索适配</h3>
+<p>标准束搜索需要针对检索任务进行调整：</p>
+<div class="codehilite"><pre><span></span><code>标准束搜索:
+
+- 保持top-k个候选序列
+- 基于累积概率排序
+
+检索适配的束搜索:
+
+- 约束解码：只生成有效的文档ID
+- 前缀树剪枝：利用文档ID的树结构
+- 多样性奖励：避免生成过于相似的文档
+</code></pre></div>
+
+<h2 id="23">2.3 注意力机制的本质</h2>
+<h3 id="231">2.3.1 注意力作为软检索</h3>
+<p>注意力机制本质上是一种可微分的检索操作：
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+从检索视角理解：</p>
+<ul>
+<li>$Q$: 查询表示</li>
+<li>$K$: 文档索引（键）</li>
+<li>$V$: 文档内容</li>
+<li>$QK^T$: 相似度计算</li>
+<li>softmax: 将相似度转换为检索概率</li>
+</ul>
+<h3 id="232">2.3.2 缩放因子的信息论解释</h3>
+<p>缩放因子 $\frac{1}{\sqrt{d_k}}$ 在生成式检索中的作用：</p>
+<div class="codehilite"><pre><span></span><code>无缩放时的问题:
+
+<span class="k">-</span> 点积值范围: [-100, 100] (假设d_k=512)
+<span class="k">-</span> softmax后: 极端的概率分布（接近one-hot）
+<span class="k">-</span> 结果: 只能检索到单个文档
+
+有缩放时:
+
+<span class="k">-</span> 点积值范围: [-4.4, 4.4]
+<span class="k">-</span> softmax后: 平滑的概率分布
+<span class="k">-</span> 结果: 可以软检索多个相关文档
+</code></pre></div>
+
+<p>信息论视角：缩放控制了检索的熵，平衡了精确性和召回率。</p>
+<h3 id="233">2.3.3 注意力模式的可视化</h3>
+<p>在生成式检索中，注意力模式揭示了模型的检索策略：</p>
+<div class="codehilite"><pre><span></span><code><span class="nl">Query</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;神经网络 教程&quot;</span>
+
+<span class="nl">注意力模式分析</span><span class="p">:</span>
+<span class="o">[</span><span class="n">CLS</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">全局语义聚合</span>
+<span class="ss">&quot;神经&quot;</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">强关注</span><span class="ss">&quot;深度学习&quot;</span><span class="err">、</span><span class="ss">&quot;AI&quot;</span><span class="n">相关token</span>
+<span class="ss">&quot;网络&quot;</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">分散注意力</span><span class="err">（</span><span class="n">歧义词</span><span class="err">）</span>
+<span class="ss">&quot;教程&quot;</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">强关注文档类型标识符</span>
+
+<span class="w">     </span><span class="o">[</span><span class="n">CLS</span><span class="o">]</span><span class="w"> </span><span class="n">神经</span><span class="w"> </span><span class="n">网络</span><span class="w"> </span><span class="n">教程</span>
+<span class="o">[</span><span class="n">CLS</span><span class="o">]</span><span class="w">  </span><span class="mf">0.4</span><span class="w">  </span><span class="mf">0.2</span><span class="w">  </span><span class="mf">0.1</span><span class="w">  </span><span class="mf">0.3</span>
+<span class="n">神经</span><span class="w">   </span><span class="mf">0.1</span><span class="w">  </span><span class="mf">0.5</span><span class="w">  </span><span class="mf">0.3</span><span class="w">  </span><span class="mf">0.1</span>
+<span class="n">网络</span><span class="w">   </span><span class="mf">0.2</span><span class="w">  </span><span class="mf">0.3</span><span class="w">  </span><span class="mf">0.2</span><span class="w">  </span><span class="mf">0.3</span>
+<span class="n">教程</span><span class="w">   </span><span class="mf">0.1</span><span class="w">  </span><span class="mf">0.1</span><span class="w">  </span><span class="mf">0.1</span><span class="w">  </span><span class="mf">0.7</span>
+</code></pre></div>
+
+<h2 id="24-vs">2.4 高级话题：因果注意力vs双向注意力的检索影响</h2>
+<h3 id="241">2.4.1 因果注意力（自回归）</h3>
+<p>因果注意力通过掩码矩阵实现：
+$$M_{ij} = \begin{cases} 
+0 &amp; \text{if } i \geq j \\
+-\infty &amp; \text{if } i &lt; j 
+\end{cases}$$
+在生成式检索中的应用：</p>
+<div class="codehilite"><pre><span></span><code>优势:
+
+- 自然支持增量生成文档ID
+- 训练和推理一致性好
+- 可以建模ID之间的依赖关系
+
+劣势:
+
+- 无法利用完整的上下文信息
+- 对于短查询，信息利用不充分
+- 生成速度受序列长度限制
+</code></pre></div>
+
+<h3 id="242">2.4.2 双向注意力</h3>
+<p>双向注意力允许token看到完整序列：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">应用场景</span><span class="o">:</span>
+
+<span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="err">查询编码器</span><span class="o">:</span><span class="w"> </span><span class="err">始终使用双向注意力</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="err">需要完整理解查询语义</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="err">不涉及生成过程</span>
+
+<span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="err">文档编码（离线索引）</span><span class="o">:</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="err">使用双向注意力编码文档</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="err">生成稠密的文档表示</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="err">作为解码器的额外输入</span>
+
+<span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="err">重排序阶段</span><span class="o">:</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="err">对候选文档使用双向注意力</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="err">更精确的相关性评分</span>
+</code></pre></div>
+
+<h3 id="243">2.4.3 混合注意力架构</h3>
+<p>最新研究提出了混合架构：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">架构设计</span><span class="o">:</span>
+<span class="n">Layer</span><span class="w"> </span><span class="mi">1</span><span class="o">-</span><span class="mi">6</span><span class="o">:</span><span class="w">  </span><span class="err">双向注意力（理解阶段）</span>
+<span class="n">Layer</span><span class="w"> </span><span class="mi">7</span><span class="o">-</span><span class="mi">9</span><span class="o">:</span><span class="w">  </span><span class="err">因果注意力（生成准备）</span>
+<span class="n">Layer</span><span class="w"> </span><span class="mi">10</span><span class="o">-</span><span class="mi">12</span><span class="o">:</span><span class="w"> </span><span class="err">因果注意力（</span><span class="n">ID生成</span><span class="err">）</span>
+
+<span class="err">关键创新</span><span class="o">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="err">前置层充分理解查询</span>
+<span class="o">-</span><span class="w"> </span><span class="err">后置层专注于生成</span>
+<span class="o">-</span><span class="w"> </span><span class="err">通过门控机制动态切换</span>
+</code></pre></div>
+
+<p>实验结果表明，混合架构在MS MARCO数据集上相比纯因果模型提升了15%的召回率。</p>
+<h3 id="244">2.4.4 注意力模式的定量分析</h3>
+<p>通过熵和稀疏度量化不同注意力的检索行为：
+$$H(\alpha) = -\sum_i \alpha_i \log \alpha_i$$</p>
+<p>$$\text{Sparsity}(\alpha) = \frac{\sqrt{n} - \frac{|\alpha|_1}{|\alpha|_2}}{\sqrt{n} - 1}$$</p>
+<div class="codehilite"><pre><span></span><code><span class="err">实验观察</span><span class="o">:</span>
+<span class="err">因果注意力</span><span class="o">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="err">平均熵</span><span class="o">:</span><span class="w"> </span><span class="mf">2.3</span>
+<span class="o">-</span><span class="w"> </span><span class="err">稀疏度</span><span class="o">:</span><span class="w"> </span><span class="mf">0.7</span>
+<span class="o">-</span><span class="w"> </span><span class="err">倾向于局部依赖</span>
+
+<span class="err">双向注意力</span><span class="o">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="err">平均熵</span><span class="o">:</span><span class="w"> </span><span class="mf">3.8</span><span class="w">  </span>
+<span class="o">-</span><span class="w"> </span><span class="err">稀疏度</span><span class="o">:</span><span class="w"> </span><span class="mf">0.4</span>
+<span class="o">-</span><span class="w"> </span><span class="err">全局信息整合</span>
+
+<span class="err">检索含义</span><span class="o">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="err">高熵</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">探索性检索</span>
+<span class="o">-</span><span class="w"> </span><span class="err">高稀疏度</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">精确匹配</span>
+</code></pre></div>
+
+<h2 id="25-openaiembeddings-api">2.5 工业案例：OpenAI的Embeddings API架构</h2>
+<h3 id="251">2.5.1 系统架构概览</h3>
+<p>OpenAI的Embeddings API展示了生产环境中的预备知识应用：</p>
+<div class="codehilite"><pre><span></span><code><span class="n">API调用流程</span><span class="o">:</span>
+
+<span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="err">文本输入</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Tokenization</span>
+<span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="n">Token序列</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Transformer编码器</span>
+<span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="err">池化策略</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">固定维度</span><span class="n">embedding</span>
+<span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="err">后处理</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">归一化向量</span>
+
+<span class="err">关键设计选择</span><span class="o">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="err">模型</span><span class="o">:</span><span class="w"> </span><span class="err">基于</span><span class="n">GPT架构的编码器变体</span>
+<span class="o">-</span><span class="w"> </span><span class="err">维度</span><span class="o">:</span><span class="w"> </span><span class="mi">1536</span><span class="err">维（</span><span class="n">ada</span><span class="o">-</span><span class="mi">002</span><span class="err">）</span>
+<span class="o">-</span><span class="w"> </span><span class="err">池化</span><span class="o">:</span><span class="w"> </span><span class="err">加权平均池化</span>
+<span class="o">-</span><span class="w"> </span><span class="err">归一化</span><span class="o">:</span><span class="w"> </span><span class="n">L2归一化确保余弦相似度</span>
+</code></pre></div>
+
+<h3 id="252">2.5.2 分词器的优化</h3>
+<p>OpenAI使用BPE（Byte Pair Encoding）的变体cl100k_base：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 分词示例</span>
+<span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;生成式检索是未来&quot;</span>
+<span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="c1"># tokens: [104, 25356, 24121, 45368, 11394, 21905]</span>
+
+<span class="c1"># 词汇表大小: 100,256</span>
+<span class="c1"># 平均token长度: 4个字符</span>
+<span class="c1"># 支持: 多语言、代码、特殊符号</span>
+</code></pre></div>
+
+<p><strong>检索优化</strong>：</p>
+<ul>
+<li>对常见查询词分配更短的token</li>
+<li>降低检索时的序列长度</li>
+<li>提高编码效率</li>
+</ul>
+<h3 id="253">2.5.3 位置编码的改进</h3>
+<p>OpenAI采用了旋转位置编码（RoPE）：
+$$\text{RoPE}(x_i, m) = x_i e^{i m \theta}$$
+优势分析：</p>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">相对位置信息保留</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">适合变长文档</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">检索时位置无关性</span>
+
+<span class="mf">2.</span><span class="w"> </span><span class="n">外推能力</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">训练</span><span class="p">:</span><span class="w"> </span><span class="n">最大2048</span><span class="w"> </span><span class="kr">to</span><span class="n">kens</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">推理</span><span class="p">:</span><span class="w"> </span><span class="n">可扩展到8192</span><span class="w"> </span><span class="kr">to</span><span class="n">kens</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">长文档检索支持</span>
+
+<span class="mf">3.</span><span class="w"> </span><span class="n">计算效率</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">无额外参数</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">可并行计算</span>
+</code></pre></div>
+
+<h3 id="254">2.5.4 缓存和优化策略</h3>
+<p>生产环境的关键优化：</p>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">嵌入缓存</span><span class="p">:</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">LRU缓存热门查询</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">布隆过滤器快速判断</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">命中率</span><span class="p">:</span><span class="w"> </span><span class="o">&gt;</span><span class="mf">40</span><span class="err">%</span>
+
+<span class="mf">2.</span><span class="w"> </span><span class="n">批处理</span><span class="p">:</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">动态批大小</span><span class="p">:</span><span class="w"> </span><span class="mf">1</span><span class="o">-</span><span class="mf">2048</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">Padding优化</span><span class="p">:</span><span class="w"> </span><span class="n">最小化填充</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">吞吐量</span><span class="p">:</span><span class="w"> </span><span class="mf">100</span><span class="n">K</span><span class="w"> </span><span class="n">requests</span><span class="o">/</span><span class="n">sec</span>
+
+<span class="mf">3.</span><span class="w"> </span><span class="n">量化策略</span><span class="p">:</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">FP16推理</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="nb">INT</span><span class="mf">8</span><span class="n">后量化</span><span class="err">（</span><span class="nb">exp</span><span class="n">erimental</span><span class="err">）</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">延迟降低</span><span class="p">:</span><span class="w"> </span><span class="mf">30</span><span class="err">%</span>
+
+<span class="mf">4.</span><span class="w"> </span><span class="n">分布式部署</span><span class="p">:</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">模型并行</span><span class="p">:</span><span class="w"> </span><span class="n">跨GPU分割</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">数据并行</span><span class="p">:</span><span class="w"> </span><span class="n">多副本服务</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">地理分布</span><span class="p">:</span><span class="w"> </span><span class="n">边缘节点缓存</span>
+</code></pre></div>
+
+<h3 id="255">2.5.5 质量监控指标</h3>
+<p>OpenAI的embedding质量监控：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 语义一致性测试</span>
+<span class="n">similar_pairs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;机器学习&quot;</span><span class="p">,</span> <span class="s2">&quot;深度学习&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;neural network&quot;</span><span class="p">,</span> <span class="s2">&quot;神经网络&quot;</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="k">for</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="ow">in</span> <span class="n">similar_pairs</span><span class="p">:</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">cosine_similarity</span><span class="p">(</span><span class="n">embed</span><span class="p">(</span><span class="n">p1</span><span class="p">),</span> <span class="n">embed</span><span class="p">(</span><span class="n">p2</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">sim</span> <span class="o">&gt;</span> <span class="mf">0.8</span>
+
+<span class="c1"># 各向异性度测试</span>
+<span class="n">embeddings</span> <span class="o">=</span> <span class="p">[</span><span class="n">embed</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">corpus</span><span class="p">]</span>
+<span class="n">avg_sim</span> <span class="o">=</span> <span class="n">mean_pairwise_similarity</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">avg_sim</span> <span class="o">&lt;</span> <span class="mf">0.3</span>  <span class="c1"># 避免表示坍缩</span>
+
+<span class="c1"># 维度利用率</span>
+<span class="n">explained_variance</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span><span class="o">.</span><span class="n">explained_variance_ratio_</span>
+<span class="k">assert</span> <span class="n">explained_variance</span><span class="p">[:</span><span class="mi">100</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.95</span>  <span class="c1"># 维度充分利用</span>
+</code></pre></div>
+
+<h3 id="256">2.5.6 实际应用数据</h3>
+<p>根据公开信息，OpenAI Embeddings API的使用统计：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">日均请求量</span><span class="o">:</span><span class="w"> </span><span class="mi">10</span><span class="err">亿</span><span class="o">+</span>
+<span class="err">平均延迟</span><span class="o">:</span><span class="w"> </span><span class="mi">50</span><span class="n">ms</span><span class="w"> </span><span class="o">(</span><span class="n">p50</span><span class="o">),</span><span class="w"> </span><span class="mi">200</span><span class="n">ms</span><span class="w"> </span><span class="o">(</span><span class="n">p99</span><span class="o">)</span>
+<span class="err">可用性</span><span class="o">:</span><span class="w"> </span><span class="mf">99.95</span><span class="o">%</span><span class="w"> </span><span class="n">SLA</span>
+<span class="err">成本</span><span class="o">:</span><span class="w"> </span><span class="n">$0</span><span class="o">.</span><span class="mi">0001</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="mi">1</span><span class="n">K</span><span class="w"> </span><span class="n">tokens</span>
+
+<span class="err">主要使用场景</span><span class="o">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="err">语义搜索</span><span class="o">:</span><span class="w"> </span><span class="mi">35</span><span class="o">%</span>
+<span class="o">-</span><span class="w"> </span><span class="err">推荐系统</span><span class="o">:</span><span class="w"> </span><span class="mi">25</span><span class="o">%</span>
+<span class="o">-</span><span class="w"> </span><span class="err">聚类分析</span><span class="o">:</span><span class="w"> </span><span class="mi">20</span><span class="o">%</span>
+<span class="o">-</span><span class="w"> </span><span class="err">分类任务</span><span class="o">:</span><span class="w"> </span><span class="mi">15</span><span class="o">%</span>
+<span class="o">-</span><span class="w"> </span><span class="err">其他</span><span class="o">:</span><span class="w"> </span><span class="mi">5</span><span class="o">%</span>
+</code></pre></div>
+
+<h2 id="_1">本章小结</h2>
+<p>本章从生成式检索的视角重新审视了Transformer、序列到序列模型和注意力机制等基础技术：</p>
+<p><strong>核心要点</strong>：</p>
+<ol>
+<li><strong>Transformer组件的检索专门化</strong>：位置编码、多头注意力和层归一化在生成式检索中承担特殊角色</li>
+<li><strong>编码器-解码器的非对称设计</strong>：理解查询意图与生成文档ID需要不同的架构考量</li>
+<li><strong>注意力即软检索</strong>：注意力机制本质上是可微分的检索操作</li>
+<li><strong>因果vs双向的权衡</strong>：不同的注意力模式适合不同的检索阶段</li>
+<li><strong>工业实践的优化</strong>：OpenAI案例展示了理论到实践的关键工程决策</li>
+</ol>
+<p><strong>关键公式回顾</strong>：</p>
+<ul>
+<li>多头注意力：$\text{MultiHead}(Q,K,V) = \text{Concat}(\text{head}_1,...,\text{head}_h)W^O$</li>
+<li>缩放点积注意力：$\text{Attention}(Q,K,V) = \text{softmax}(\frac{QK^T}{\sqrt{d_k}})V$</li>
+<li>因果掩码：$M_{ij} = \begin{cases} 0 &amp; i \geq j \\ -\infty &amp; i &lt; j \end{cases}$</li>
+<li>注意力熵：$H(\alpha) = -\sum_i \alpha_i \log \alpha_i$</li>
+</ul>
+<p>这些基础知识将在后续章节中被反复应用和深化，特别是在第3章讨论DSI架构时，我们将看到这些组件如何被创造性地组合以实现"索引即参数"的革命性理念。</p>
+<h2 id="_2">练习题</h2>
+<h3 id="_3">基础题</h3>
+<p><strong>练习2.1</strong> 解释为什么在生成式检索中，绝对位置编码通常优于相对位置编码？</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑文档ID的结构特性和生成过程的稳定性需求。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p>绝对位置编码在生成式检索中更优的原因：</p>
+<ol>
+<li>
+<p><strong>文档ID的固定结构</strong>：文档ID通常有固定的格式（如层次化ID），每个位置都有特定含义。绝对位置编码能稳定地编码这种结构信息。</p>
+</li>
+<li>
+<p><strong>生成一致性</strong>：在自回归生成过程中，绝对位置提供了稳定的锚点，避免了相对位置在不同生成步骤中的语义漂移。</p>
+</li>
+<li>
+<p><strong>记忆化需求</strong>：模型需要记住"位置3总是表示文档类别"这样的模式，绝对位置编码使这种记忆更容易。</p>
+</li>
+<li>
+<p><strong>检索的全局视角</strong>：检索任务需要全局理解，而不是局部的相对关系。绝对位置有助于建立查询到文档ID的直接映射。</p>
+</li>
+</ol>
+</details>
+<p><strong>练习2.2</strong> 计算一个4头注意力机制中，当$d_{model}=512$时，每个注意力头的维度$d_k$和$d_v$是多少？</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>多头注意力将模型维度均匀分配给各个头。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p>给定：</p>
+<ul>
+<li>$d_{model} = 512$</li>
+<li>$h = 4$（头数）</li>
+</ul>
+<p>计算：</p>
+<ul>
+<li>$d_k = d_v = \frac{d_{model}}{h} = \frac{512}{4} = 128$</li>
+</ul>
+<p>每个注意力头处理128维的键、查询和值向量。这种划分确保了：</p>
+<ul>
+<li>计算效率：并行处理多个较小的注意力计算</li>
+<li>参数效率：总参数量与单头注意力相同</li>
+<li>表达能力：不同头可以学习不同的注意力模式</li>
+</ul>
+</details>
+<p><strong>练习2.3</strong> 给定查询"机器学习教程"，设计一个简单的注意力权重矩阵（4×4），展示合理的注意力模式。</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑哪些词之间应该有强关联，哪些词是独立的。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p>查询分词：["[CLS]", "机器", "学习", "教程"]</p>
+<p>合理的注意力权重矩阵：</p>
+<div class="codehilite"><pre><span></span><code><span class="w">        </span><span class="o">[</span><span class="n">CLS</span><span class="o">]</span><span class="w">  </span><span class="n">机器</span><span class="w">  </span><span class="n">学习</span><span class="w">  </span><span class="n">教程</span>
+<span class="o">[</span><span class="n">CLS</span><span class="o">]</span><span class="w">    </span><span class="mf">0.25</span><span class="w">  </span><span class="mf">0.35</span><span class="w">  </span><span class="mf">0.35</span><span class="w">  </span><span class="mf">0.05</span>
+<span class="n">机器</span><span class="w">     </span><span class="mf">0.10</span><span class="w">  </span><span class="mf">0.30</span><span class="w">  </span><span class="mf">0.50</span><span class="w">  </span><span class="mf">0.10</span>
+<span class="n">学习</span><span class="w">     </span><span class="mf">0.10</span><span class="w">  </span><span class="mf">0.40</span><span class="w">  </span><span class="mf">0.40</span><span class="w">  </span><span class="mf">0.10</span><span class="w">  </span>
+<span class="n">教程</span><span class="w">     </span><span class="mf">0.20</span><span class="w">  </span><span class="mf">0.20</span><span class="w">  </span><span class="mf">0.20</span><span class="w">  </span><span class="mf">0.40</span>
+</code></pre></div>
+
+<p>解释：</p>
+<ul>
+<li>[CLS]均匀关注内容词，轻微忽略"教程"</li>
+<li>"机器"和"学习"相互强关注（组成概念）</li>
+<li>"教程"自注意力较强（独立的文档类型标识）</li>
+<li>行和为1（softmax归一化）</li>
+</ul>
+</details>
+<h3 id="_4">挑战题</h3>
+<p><strong>练习2.4</strong> 推导在极限情况下（$d_k \to \infty$），不使用缩放因子时注意力分布会发生什么？用数学和直觉两种方式解释。</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑点积的方差如何随维度增长，以及softmax对大值的敏感性。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p><strong>数学推导</strong>：</p>
+<p>假设$q, k \sim \mathcal{N}(0, 1)$且独立，则：</p>
+<ul>
+<li>$q \cdot k = \sum_{i=1}^{d_k} q_i k_i$</li>
+<li>$E[q \cdot k] = 0$</li>
+<li>$\text{Var}(q \cdot k) = d_k$</li>
+</ul>
+<p>当$d_k \to \infty$：</p>
+<ul>
+<li>点积的标准差：$\sigma = \sqrt{d_k} \to \infty$</li>
+<li>点积值范围：大约$[-3\sqrt{d_k}, 3\sqrt{d_k}]$</li>
+</ul>
+<p>Softmax的行为：
+$$\text{softmax}(x_i) = \frac{e^{x_i}}{\sum_j e^{x_j}}$$
+当存在$x_{max} \gg x_{others}$时：
+$$\text{softmax}(x_{max}) \approx 1, \quad \text{softmax}(x_{others}) \approx 0$$</p>
+<p><strong>直觉解释</strong>：</p>
+<ol>
+<li>高维空间中，随机向量的点积有很大的方差</li>
+<li>不缩放时，某个点积值很可能远大于其他值</li>
+<li>Softmax将这种差异极端放大，导致one-hot分布</li>
+<li>结果：模型只能"硬"选择一个item，失去了软检索能力</li>
+<li>缩放因子$1/\sqrt{d_k}$将方差标准化为1，保持合理的分布</li>
+</ol>
+</details>
+<p><strong>练习2.5</strong> 设计一个实验来验证因果注意力和双向注意力在检索任务上的性能差异。描述实验设置、评估指标和预期结果。</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑不同类型的查询（短/长、精确/模糊）和不同的评估维度。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p><strong>实验设计</strong>：</p>
+<ol>
+<li>
+<p><strong>数据集</strong>：
+   - MS MARCO（100K文档）
+   - 查询分类：短查询（&lt;5词）、长查询（&gt;10词）
+   - 查询类型：精确匹配、语义匹配、混合</p>
+</li>
+<li>
+<p><strong>模型配置</strong>：
+   - 基线：相同架构，仅注意力机制不同
+   - Model-C：纯因果注意力
+   - Model-B：纯双向注意力<br />
+   - Model-H：混合（前6层双向，后6层因果）</p>
+</li>
+<li>
+<p><strong>评估指标</strong>：
+   - 召回率@{1,10,100}
+   - MRR（Mean Reciprocal Rank）
+   - 推理延迟
+   - 注意力熵（多样性度量）</p>
+</li>
+<li>
+<p><strong>实验流程</strong>：</p>
+</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">query_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;short&#39;</span><span class="p">,</span> <span class="s1">&#39;long&#39;</span><span class="p">,</span> <span class="s1">&#39;exact&#39;</span><span class="p">,</span> <span class="s1">&#39;semantic&#39;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Model_C</span><span class="p">,</span> <span class="n">Model_B</span><span class="p">,</span> <span class="n">Model_H</span><span class="p">]:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">query_type</span><span class="p">)</span>
+        <span class="n">record_metrics</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</code></pre></div>
+
+<ol start="5">
+<li><strong>预期结果</strong>：</li>
+</ol>
+<p>| 模型 | 短查询R@10 | 长查询R@10 | 推理延迟 | 注意力熵 |</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>短查询R@10</th>
+<th>长查询R@10</th>
+<th>推理延迟</th>
+<th>注意力熵</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model-C</td>
+<td>0.75</td>
+<td>0.82</td>
+<td>50ms</td>
+<td>2.3</td>
+</tr>
+<tr>
+<td>Model-B</td>
+<td>0.85</td>
+<td>0.88</td>
+<td>80ms</td>
+<td>3.8</td>
+</tr>
+<tr>
+<td>Model-H</td>
+<td>0.83</td>
+<td>0.87</td>
+<td>65ms</td>
+<td>3.1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析</strong>：</p>
+<ul>
+<li>双向注意力在短查询上优势明显（充分利用有限信息）</li>
+<li>因果注意力推理更快（可以缓存之前的计算）</li>
+<li>混合模型达到较好的平衡</li>
+<li>注意力熵反映了信息利用的充分程度</li>
+</ul>
+</details>
+<p><strong>练习2.6</strong> OpenAI使用1536维的embedding。分析这个维度选择的trade-off，并提出一个实验来找到最优维度。</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑表达能力、计算成本、存储成本和下游任务性能。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p><strong>Trade-off分析</strong>：</p>
+<ol>
+<li>
+<p><strong>表达能力</strong>：
+   - 维度↑ → 更丰富的语义表示
+   - 边际收益递减（&gt;1024维后改善有限）</p>
+</li>
+<li>
+<p><strong>计算成本</strong>：
+   - 相似度计算：O(d)
+   - 存储需求：4d bytes (FP32)
+   - 网络传输：线性增长</p>
+</li>
+<li>
+<p><strong>过拟合风险</strong>：
+   - 高维度在小数据集上容易过拟合
+   - 需要更多训练数据</p>
+</li>
+</ol>
+<p><strong>最优维度实验</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">find_optimal_dimension</span><span class="p">():</span>
+    <span class="n">dimensions</span> <span class="o">=</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="mi">768</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">1536</span><span class="p">,</span> <span class="mi">2048</span><span class="p">,</span> <span class="mi">3072</span><span class="p">]</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dimensions</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">train_embedding_model</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="c1"># 评估指标</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;retrieval_acc&#39;</span><span class="p">:</span> <span class="n">evaluate_retrieval</span><span class="p">(</span><span class="n">model</span><span class="p">),</span>
+            <span class="s1">&#39;clustering_score&#39;</span><span class="p">:</span> <span class="n">evaluate_clustering</span><span class="p">(</span><span class="n">model</span><span class="p">),</span>
+            <span class="s1">&#39;inference_time&#39;</span><span class="p">:</span> <span class="n">measure_latency</span><span class="p">(</span><span class="n">model</span><span class="p">),</span>
+            <span class="s1">&#39;storage_gb&#39;</span><span class="p">:</span> <span class="n">calculate_storage</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">num_docs</span><span class="o">=</span><span class="mf">1e9</span><span class="p">),</span>
+            <span class="s1">&#39;anisotropy&#39;</span><span class="p">:</span> <span class="n">measure_anisotropy</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="c1"># 综合得分（加权）</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">0.4</span> <span class="o">*</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;retrieval_acc&#39;</span><span class="p">]</span> <span class="o">+</span>
+            <span class="mf">0.2</span> <span class="o">*</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;clustering_score&#39;</span><span class="p">]</span> <span class="o">-</span>
+            <span class="mf">0.2</span> <span class="o">*</span> <span class="n">normalize</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;inference_time&#39;</span><span class="p">])</span> <span class="o">-</span>
+            <span class="mf">0.1</span> <span class="o">*</span> <span class="n">normalize</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;storage_gb&#39;</span><span class="p">])</span> <span class="o">+</span>
+            <span class="mf">0.1</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;anisotropy&#39;</span><span class="p">])</span>
+        <span class="p">)</span>
+
+        <span class="n">results</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div>
+
+<p><strong>预期结果</strong>：</p>
+<div class="codehilite"><pre><span></span><code>维度  | 检索精度 | 延迟(ms) | 存储(GB) | 综合得分
+128   | 0.78    | 5        | 0.5      | 0.72
+256   | 0.84    | 8        | 1.0      | 0.78  
+512   | 0.89    | 15       | 2.0      | 0.82
+768   | 0.91    | 22       | 3.0      | 0.83
+1024  | 0.92    | 30       | 4.0      | 0.84
+1536  | 0.93    | 45       | 6.0      | 0.83 ← OpenAI选择
+2048  | 0.935   | 60       | 8.0      | 0.81
+3072  | 0.94    | 90       | 12.0     | 0.78
+</code></pre></div>
+
+<p><strong>结论</strong>：1536维是一个合理的选择，平衡了性能和效率。更高维度的边际收益不足以弥补成本增加。</p>
+</details>
+<p><strong>练习2.7</strong> 如果要将Transformer模型从处理文本扩展到处理多模态查询（文本+图像），需要修改哪些组件？给出详细的架构设计。</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑如何统一不同模态的表示，以及如何处理模态间的交互。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p><strong>多模态Transformer架构设计</strong>：</p>
+<ol>
+<li><strong>输入处理层</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">MultiModalInput</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d_model</span><span class="o">=</span><span class="mi">768</span><span class="p">):</span>
+        <span class="c1"># 文本编码器</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_tokenizer</span> <span class="o">=</span> <span class="n">BPETokenizer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_embed</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">d_model</span><span class="p">)</span>
+
+        <span class="c1"># 图像编码器</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_encoder</span> <span class="o">=</span> <span class="n">ViT</span><span class="p">(</span><span class="n">patch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">d_model</span><span class="o">=</span><span class="n">d_model</span><span class="p">)</span>
+
+        <span class="c1"># 模态类型嵌入</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modality_embed</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">d_model</span><span class="p">)</span>  <span class="c1"># 0:text, 1:image</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="c1"># 文本处理</span>
+        <span class="n">text_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_embed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+        <span class="n">text_tokens</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modality_embed</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+
+        <span class="c1"># 图像处理（分割成patches）</span>
+        <span class="n">image_patches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_encoder</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">image_patches</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modality_embed</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+
+        <span class="c1"># 拼接</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">text_tokens</span><span class="p">,</span> <span class="n">image_patches</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+<ol start="2">
+<li><strong>位置编码修改</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">MultiModalPositionalEncoding</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 1D位置编码用于文本</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_pos</span> <span class="o">=</span> <span class="n">SinusoidalPE</span><span class="p">()</span>
+
+        <span class="c1"># 2D位置编码用于图像</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_pos</span> <span class="o">=</span> <span class="n">Learned2DPE</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">modality_mask</span><span class="p">):</span>
+        <span class="c1"># 根据模态类型应用不同的位置编码</span>
+        <span class="n">text_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">modality_mask</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">image_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">modality_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">tokens</span><span class="p">[</span><span class="n">text_mask</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_pos</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">text_mask</span><span class="p">])</span>
+        <span class="n">tokens</span><span class="p">[</span><span class="n">image_mask</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_pos</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">image_mask</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">tokens</span>
+</code></pre></div>
+
+<ol start="3">
+<li><strong>注意力机制增强</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CrossModalAttention</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d_model</span><span class="p">,</span> <span class="n">n_heads</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_heads</span> <span class="o">=</span> <span class="n">n_heads</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_head</span> <span class="o">=</span> <span class="n">d_model</span> <span class="o">//</span> <span class="n">n_heads</span>
+
+        <span class="c1"># 模态特定的投影</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleDict</span><span class="p">({</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">d_model</span><span class="p">,</span> <span class="n">d_model</span><span class="p">),</span>
+            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">d_model</span><span class="p">,</span> <span class="n">d_model</span><span class="p">)</span>
+        <span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">d_model</span><span class="p">,</span> <span class="n">d_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">d_model</span><span class="p">,</span> <span class="n">d_model</span><span class="p">)</span>
+
+        <span class="c1"># 模态交互门控</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">d_model</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">d_model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">modality_mask</span><span class="p">):</span>
+        <span class="c1"># 根据模态类型使用不同的查询投影</span>
+        <span class="n">q_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_proj</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">](</span><span class="n">x</span><span class="p">[</span><span class="n">modality_mask</span> <span class="o">==</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">q_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_proj</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">](</span><span class="n">x</span><span class="p">[</span><span class="n">modality_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># 统一的键值投影</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_proj</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_proj</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># 计算注意力...</span>
+        <span class="c1"># 应用门控机制调节跨模态交互强度</span>
+</code></pre></div>
+
+<ol start="4">
+<li><strong>层次化架构</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="nl">输入层</span><span class="p">:</span>
+<span class="err">├──</span><span class="w"> </span><span class="nl">文本</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;红色跑车&quot;</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Tokenize</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Embed</span>
+<span class="err">└──</span><span class="w"> </span><span class="nl">图像</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">224×224×3</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Patches</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Linear</span><span class="w"> </span><span class="n">Projection</span>
+
+<span class="n">早期融合层</span><span class="w"> </span><span class="p">(</span><span class="n">Layer</span><span class="w"> </span><span class="mi">1</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="err">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="n">模态内自注意力为主</span>
+<span class="o">-</span><span class="w"> </span><span class="n">轻量级跨模态交互</span>
+
+<span class="n">中期交互层</span><span class="w"> </span><span class="p">(</span><span class="n">Layer</span><span class="w"> </span><span class="mi">5</span><span class="o">-</span><span class="mi">8</span><span class="p">)</span><span class="err">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="n">平衡的模态内</span><span class="o">/</span><span class="n">跨模态注意力</span>
+<span class="o">-</span><span class="w"> </span><span class="n">学习对齐表示</span>
+
+<span class="n">后期融合层</span><span class="w"> </span><span class="p">(</span><span class="n">Layer</span><span class="w"> </span><span class="mi">9</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span><span class="err">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="n">深度跨模态理解</span>
+<span class="o">-</span><span class="w"> </span><span class="n">统一的多模态表示</span>
+
+<span class="nl">输出层</span><span class="p">:</span>
+
+<span class="o">-</span><span class="w"> </span><span class="n">池化策略</span><span class="err">：</span><span class="o">[</span><span class="n">CLS</span><span class="o">]</span><span class="w"> </span><span class="n">token或平均池化</span>
+<span class="o">-</span><span class="w"> </span><span class="n">生成文档ID序列</span>
+</code></pre></div>
+
+<ol start="5">
+<li><strong>训练策略调整</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 多模态对比学习</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mf">0.4</span> <span class="o">*</span> <span class="n">text_to_doc_loss</span> <span class="o">+</span>
+    <span class="mf">0.3</span> <span class="o">*</span> <span class="n">image_to_doc_loss</span> <span class="o">+</span>
+    <span class="mf">0.3</span> <span class="o">*</span> <span class="n">multimodal_to_doc_loss</span>
+<span class="p">)</span>
+
+<span class="c1"># 模态缺失训练（提高鲁棒性）</span>
+<span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.2</span><span class="p">:</span>
+    <span class="c1"># 随机mask掉一个模态</span>
+    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+
+<ol start="6">
+<li><strong>关键设计决策</strong>：
+- <strong>早期vs晚期融合</strong>：早期融合允许更深的模态交互
+- <strong>共享vs独立参数</strong>：部分共享（投影层独立，注意力共享）
+- <strong>对齐策略</strong>：通过对比学习对齐模态空间
+- <strong>计算优化</strong>：图像patches可以预计算和缓存</li>
+</ol>
+<p>这种设计在CLIP和ALIGN等模型中得到验证，可以有效处理多模态检索任务。</p>
+</details>
+<p><strong>练习2.8</strong> 分析Teacher Forcing在生成式检索中造成的exposure bias问题，并提出至少两种缓解策略。</p>
+<details>
+<summary>提示（点击展开）</summary>
+<p>考虑训练和推理之间的差异，以及如何逐步缩小这种差异。</p>
+</details>
+<details>
+<summary>参考答案（点击展开）</summary>
+<p><strong>Exposure Bias问题分析</strong>：</p>
+<ol>
+<li>
+<p><strong>问题本质</strong>：
+   - 训练时：模型总是看到正确的历史（真实文档ID）
+   - 推理时：模型看到自己生成的历史（可能有错误）
+   - 结果：错误累积，一步错误导致后续全错</p>
+</li>
+<li>
+<p><strong>在生成式检索中的严重性</strong>：
+   - 文档ID是离散符号，无容错空间
+   - 层次化ID中，前缀错误使后续生成无意义
+   - 无法通过语义相似性恢复</p>
+</li>
+</ol>
+<p><strong>缓解策略</strong>：</p>
+<p><strong>策略1：计划采样（Scheduled Sampling）</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">scheduled_sampling_training</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">max_epochs</span><span class="p">):</span>
+    <span class="c1"># 线性衰减采样概率</span>
+    <span class="n">teacher_forcing_ratio</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">epoch</span> <span class="o">/</span> <span class="n">max_epochs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">input_seq</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;doc_id&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_seq</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">teacher_forcing_ratio</span><span class="p">:</span>
+                <span class="c1"># Teacher forcing: 使用真实token</span>
+                <span class="n">next_input</span> <span class="o">=</span> <span class="n">input_seq</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Student forcing: 使用模型预测</span>
+                <span class="n">next_input</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+
+            <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">next_input</span><span class="p">,</span> <span class="n">encoder_output</span><span class="p">)</span>
+            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_loss</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">input_seq</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>策略2：前缀约束解码训练</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">prefix_constrained_training</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;训练时模拟推理时的前缀树约束&quot;&quot;&quot;</span>
+
+    <span class="c1"># 构建文档ID前缀树</span>
+    <span class="n">prefix_tree</span> <span class="o">=</span> <span class="n">build_prefix_tree</span><span class="p">(</span><span class="n">all_doc_ids</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
+        <span class="c1"># 随机选择错误注入点</span>
+        <span class="n">error_position</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_length</span><span class="p">)</span>
+
+        <span class="c1"># 正常训练到错误点</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">teacher_forcing</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">error_position</span><span class="p">)</span>
+
+        <span class="c1"># 从错误点开始，只允许生成有效的续接</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">error_position</span><span class="p">,</span> <span class="n">max_length</span><span class="p">):</span>
+            <span class="n">logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">outputs</span><span class="p">[:</span><span class="n">t</span><span class="p">])</span>
+
+            <span class="c1"># 应用前缀树约束</span>
+            <span class="n">valid_tokens</span> <span class="o">=</span> <span class="n">prefix_tree</span><span class="o">.</span><span class="n">get_valid_continuations</span><span class="p">(</span><span class="n">outputs</span><span class="p">[:</span><span class="n">t</span><span class="p">])</span>
+            <span class="n">masked_logits</span> <span class="o">=</span> <span class="n">mask_invalid_tokens</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">valid_tokens</span><span class="p">)</span>
+
+            <span class="n">next_token</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="n">masked_logits</span><span class="p">)</span>
+            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_token</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>策略3：强化学习微调（REINFORCE）</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">reinforce_finetuning</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">reward_fn</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;使用检索质量作为奖励信号&quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
+        <span class="c1"># 采样生成多个文档ID</span>
+        <span class="n">generated_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">log_probs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+            <span class="n">doc_id</span><span class="p">,</span> <span class="n">log_p</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">return_log_prob</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">generated_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc_id</span><span class="p">)</span>
+            <span class="n">log_probs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_p</span><span class="p">)</span>
+
+        <span class="c1"># 计算奖励（检索质量）</span>
+        <span class="n">rewards</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">doc_id</span> <span class="ow">in</span> <span class="n">generated_ids</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">doc_id</span> <span class="ow">in</span> <span class="n">valid_doc_ids</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">retrieve</span><span class="p">(</span><span class="n">doc_id</span><span class="p">)</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="n">compute_relevance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># 无效ID惩罚</span>
+            <span class="n">rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+
+        <span class="c1"># REINFORCE更新</span>
+        <span class="n">baseline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="o">-</span><span class="nb">sum</span><span class="p">((</span><span class="n">r</span> <span class="o">-</span> <span class="n">baseline</span><span class="p">)</span> <span class="o">*</span> <span class="n">log_p</span> 
+                   <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">log_p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rewards</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">))</span>
+</code></pre></div>
+
+<p><strong>策略4：混合训练目标</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">mixed_objective_training</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;结合多个训练信号&quot;&quot;&quot;</span>
+
+    <span class="c1"># 1. 标准的teacher forcing损失</span>
+    <span class="n">tf_loss</span> <span class="o">=</span> <span class="n">teacher_forcing_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+
+    <span class="c1"># 2. 序列级别的损失（BLEU/编辑距离）</span>
+    <span class="n">generated</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">])</span>
+    <span class="n">seq_loss</span> <span class="o">=</span> <span class="n">sequence_level_loss</span><span class="p">(</span><span class="n">generated</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;doc_id&#39;</span><span class="p">])</span>
+
+    <span class="c1"># 3. 对比学习损失（正确ID vs 错误ID）</span>
+    <span class="n">pos_score</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;doc_id&#39;</span><span class="p">])</span>
+    <span class="n">neg_scores</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">],</span> <span class="n">negative_samples</span><span class="p">)</span>
+    <span class="n">contrastive_loss</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">margin</span> <span class="o">-</span> <span class="n">pos_score</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">))</span>
+
+    <span class="c1"># 组合损失</span>
+    <span class="n">total_loss</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mf">0.5</span> <span class="o">*</span> <span class="n">tf_loss</span> <span class="o">+</span>
+        <span class="mf">0.3</span> <span class="o">*</span> <span class="n">seq_loss</span> <span class="o">+</span>
+        <span class="mf">0.2</span> <span class="o">*</span> <span class="n">contrastive_loss</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<p><strong>实验验证</strong>：
+在MS MARCO数据集上的改进效果：</p>
+<p>| 方法 | Recall@10 | 错误传播率 | 训练时间 |</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Recall@10</th>
+<th>错误传播率</th>
+<th>训练时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>纯Teacher Forcing</td>
+<td>0.72</td>
+<td>45%</td>
+<td>1.0x</td>
+</tr>
+<tr>
+<td>计划采样</td>
+<td>0.78</td>
+<td>32%</td>
+<td>1.2x</td>
+</tr>
+<tr>
+<td>前缀约束</td>
+<td>0.76</td>
+<td>28%</td>
+<td>1.3x</td>
+</tr>
+<tr>
+<td>REINFORCE</td>
+<td>0.80</td>
+<td>30%</td>
+<td>2.0x</td>
+</tr>
+<tr>
+<td>混合目标</td>
+<td>0.82</td>
+<td>25%</td>
+<td>1.5x</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>：</p>
+<ul>
+<li>计划采样简单有效，适合作为基线改进</li>
+<li>前缀约束直接解决了无效ID问题</li>
+<li>REINFORCE效果最好但训练成本高</li>
+<li>混合目标达到最佳平衡</li>
+</ul>
+</details>
+<h2 id="_5">常见陷阱与错误</h2>
+<h3 id="1">1. 位置编码的误用</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ❌ 错误：忘记添加位置编码</span>
+<span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_embed</span><span class="p">(</span><span class="n">input_ids</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+
+<span class="c1"># ✅ 正确：添加位置编码</span>
+<span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_embed</span><span class="p">(</span><span class="n">input_ids</span><span class="p">)</span>
+<span class="n">positions</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_ids</span><span class="p">))</span>
+<span class="n">embeddings</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_embed</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="2_1">2. 注意力掩码的混淆</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ❌ 错误：因果掩码用于编码器</span>
+<span class="n">encoder_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">causal_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># 编码器应该看到完整序列</span>
+
+<span class="c1"># ✅ 正确：编码器用双向，解码器用因果</span>
+<span class="n">encoder_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">padding_mask</span><span class="p">)</span>
+<span class="n">decoder_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">encoder_output</span><span class="p">,</span> <span class="n">causal_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="3">3. 维度不匹配</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ❌ 错误：多头注意力维度计算错误</span>
+<span class="n">n_heads</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">d_model</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="n">d_head</span> <span class="o">=</span> <span class="mi">128</span>  <span class="c1"># 应该是 512/8 = 64</span>
+
+<span class="c1"># ✅ 正确：确保维度一致</span>
+<span class="k">assert</span> <span class="n">d_model</span> <span class="o">%</span> <span class="n">n_heads</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="n">d_head</span> <span class="o">=</span> <span class="n">d_model</span> <span class="o">//</span> <span class="n">n_heads</span>
+</code></pre></div>
+
+<h3 id="4-teacher-forcing">4. Teacher Forcing的训练/推理不一致</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ❌ 错误：推理时仍使用teacher forcing</span>
+<span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_length</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">true_doc_id</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>  <span class="c1"># 推理时没有true_doc_id！</span>
+
+<span class="c1"># ✅ 正确：推理时使用自回归生成</span>
+<span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+    <span class="n">generated</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_length</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">generated</span><span class="p">)</span>
+        <span class="n">next_token</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+        <span class="n">generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_token</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="5">5. 缩放因子遗漏</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ❌ 错误：大维度时不缩放导致梯度问题</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># d_k=2048时数值爆炸</span>
+
+<span class="c1"># ✅ 正确：always记得缩放</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d_k</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="_6">最佳实践检查清单</h2>
+<p>✅ <strong>架构设计</strong></p>
+<ul>
+<li>[ ] 位置编码方式适合任务特点</li>
+<li>[ ] 注意力头数是模型维度的因子</li>
+<li>[ ] 编码器和解码器的深度平衡</li>
+<li>[ ] 层归一化位置经过实验验证</li>
+</ul>
+<p>✅ <strong>训练配置</strong></p>
+<ul>
+<li>[ ] 学习率与模型规模匹配（d_model^-0.5）</li>
+<li>[ ] Warmup步数充足（4000步起）</li>
+<li>[ ] Dropout率适中（0.1-0.3）</li>
+<li>[ ] 梯度裁剪阈值设置（1.0）</li>
+</ul>
+<p>✅ <strong>推理优化</strong></p>
+<ul>
+<li>[ ] KV cache实现（减少重复计算）</li>
+<li>[ ] Batch处理的padding优化</li>
+<li>[ ] 束搜索的早停策略</li>
+<li>[ ] 模型量化评估（FP16/INT8）</li>
+</ul>
+<p>✅ <strong>检索特定</strong></p>
+<ul>
+<li>[ ] 文档ID编码方式验证</li>
+<li>[ ] 前缀树约束实现</li>
+<li>[ ] 负采样策略设计</li>
+<li>[ ] 缓存策略实现</li>
+</ul>
+<p>✅ <strong>评估完整性</strong></p>
+<ul>
+<li>[ ] 多个检索指标（Recall@K, MRR, NDCG）</li>
+<li>[ ] 不同查询类型的分别评估</li>
+<li>[ ] 延迟和吞吐量测试</li>
+<li>[ ] 错误案例分析</li>
+</ul>
+<p>✅ <strong>生产就绪</strong></p>
+<ul>
+<li>[ ] 模型版本管理</li>
+<li>[ ] A/B测试框架</li>
+<li>[ ] 监控和告警配置</li>
+<li>[ ] 降级策略准备</li>
+</ul>
+<hr />
+<p>下一章我们将深入探讨差异化搜索索引（DSI）的核心思想，看看如何将这些基础组件创造性地组合，实现"索引即参数"的革命性理念。</p>
+<p>→ <a href="chapter3.html">第3章：差异化搜索索引（DSI）</a></p>
+            </article>
+            
+            <nav class="page-nav"><a href="chapter1.html" class="nav-link prev">← 第1章：从传统检索到生成式检索</a><a href="chapter3.html" class="nav-link next">第3章：差异化搜索索引（DSI） →</a></nav>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="./">
+    <title>第15章：评估指标与基准测试</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/highlight.css">
+    <script src="assets/script.js" defer></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']],
+                processEscapes: false,
+                packages: {'[+]': ['noerrors', 'ams']}
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            loader: {
+                load: ['[tex]/noerrors', '[tex]/ams']
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>目录</h3>
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <div class="sidebar-search">
+                <input type="text" id="sidebar-search-input" placeholder="搜索..." autocomplete="off">
+            </div>
+            <div id="tree-container">
+                <nav class="tree-nav" role="tree">
+                    <div class="tree-item " >
+                        <a href="index.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">生成式检索与推荐系统教程</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter1.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第1章：从传统检索到生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter2.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第2章：预备知识速览</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter3.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第3章：差异化搜索索引（DSI）</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter4.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第4章：文档表示与标识符生成</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter5.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第5章：生成式检索的训练策略</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter6.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第6章：解码策略与推理优化</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter7.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第7章：NCI与可扩展性</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter8.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第8章：GENRE与实体检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter9.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第9章：多模态生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter10.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第10章：生成式推荐基础</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter11.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第11章：序列推荐与生成模型</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter12.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第12章：对话式推荐系统</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter13.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第13章：大语言模型时代的生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter14.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第14章：效率优化与系统设计</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item active" >
+                        <a href="chapter15.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第15章：评估指标与基准测试</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter16.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第16章：未来方向与开放问题</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="CLAUDE.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">Untitled</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </nav>
+        
+        <main class="content">
+            <article>
+                <h1 id="15">第15章：评估指标与基准测试</h1>
+<p>在生成式检索系统的开发中，评估是连接理论创新与实际应用的关键桥梁。与传统检索系统相比，生成式方法带来了全新的评估挑战：如何衡量一个直接生成文档标识符的模型性能？如何在离线评估中预测在线表现？本章将深入探讨生成式检索的评估体系，介绍新型评估指标的设计思路，并通过主流基准测试和工业实践案例，帮助读者建立完整的评估方法论。</p>
+<h2 id="151">15.1 生成式检索的评估挑战</h2>
+<h3 id="1511">15.1.1 范式转变带来的评估困境</h3>
+<p>传统检索系统的评估建立在"排序列表"的基础上，而生成式检索直接输出文档标识符序列，这种根本性差异带来了多重挑战：</p>
+<ol>
+<li><strong>离散输出空间的评估复杂性</strong></li>
+</ol>
+<p>传统检索输出连续的相关性分数，而生成式检索输出离散的token序列：</p>
+<div class="codehilite"><pre><span></span><code>传统检索：query → [doc1: 0.95, doc2: 0.87, doc3: 0.76, ...]
+生成式检索：query → [&quot;1&quot;, &quot;2&quot;, &quot;4&quot;, &quot;5&quot;] (docid序列)
+</code></pre></div>
+
+<p>这种差异使得许多基于排序的传统指标（如NDCG）需要重新设计。</p>
+<ol start="2">
+<li><strong>生成多样性与检索精度的平衡</strong></li>
+</ol>
+<p>生成模型天然具有创造性，但在检索任务中，这种"创造性"可能导致幻觉（hallucination）：</p>
+<div class="codehilite"><pre><span></span><code>输入查询：&quot;深度学习优化算法&quot;
+理想输出：[docid_123, docid_456]  # 真实相关文档
+实际输出：[docid_789, docid_???]  # docid_???可能不存在
+</code></pre></div>
+
+<ol start="3">
+<li><strong>部分匹配的语义评估</strong></li>
+</ol>
+<p>当生成的文档标识符序列部分正确时，如何公平评估？</p>
+<div class="codehilite"><pre><span></span><code>Gold标准：[&quot;d1&quot;, &quot;d2&quot;, &quot;d3&quot;, &quot;d4&quot;]
+预测输出：[&quot;d1&quot;, &quot;d5&quot;, &quot;d3&quot;, &quot;d6&quot;]
+</code></pre></div>
+
+<p>传统的精确匹配过于严格，而简单的token级别F1又忽略了检索的语义。</p>
+<h3 id="1512">15.1.2 计算效率的多维评估</h3>
+<p>生成式检索的效率评估需要考虑多个维度：</p>
+<p><strong>延迟分解模型</strong>：
+$$\text{Total Latency} = \text{Encoding}_\text{time} + \text{Generation}_\text{time} + \text{Verification}_\text{time}$$
+其中：</p>
+<ul>
+<li>$\text{Encoding}_\text{time}$：查询编码时间，通常为常数</li>
+<li>$\text{Generation}_\text{time}$：与生成长度线性相关</li>
+<li>$\text{Verification}_\text{time}$：验证生成的docid有效性</li>
+</ul>
+<p><strong>吞吐量考量</strong>：</p>
+<p>批处理场景下，需要评估：</p>
+<ul>
+<li><strong>Token/秒</strong>：生成速度的直接度量</li>
+<li><strong>Query/秒</strong>：系统级吞吐量</li>
+<li><strong>GPU利用率</strong>：硬件资源效率</li>
+</ul>
+<h3 id="1513-">15.1.3 在线-离线评估差距</h3>
+<p>生成式检索面临严重的在线-离线评估不一致问题：</p>
+<div class="codehilite"><pre><span></span><code>离线评估：静态测试集 → 固定文档集合 → 稳定的评估指标
+在线评估：动态查询流 → 实时更新文档 → 用户行为反馈
+</code></pre></div>
+
+<p><strong>关键差异因素</strong>：</p>
+<ol>
+<li><strong>文档新鲜度</strong>：离线测试集通常是静态的，无法反映新文档的检索能力</li>
+<li><strong>查询分布漂移</strong>：真实查询分布随时间变化，与测试集分布存在差异</li>
+<li><strong>用户交互模式</strong>：离线评估忽略了用户的浏览、点击、停留时间等信号</li>
+</ol>
+<h2 id="152">15.2 新型评估指标设计</h2>
+<h3 id="1521">15.2.1 生成质量指标</h3>
+<ol>
+<li><strong>标识符级别精确率（ID-Level Precision）</strong></li>
+</ol>
+<p>定义生成的标识符序列中有效且相关的比例：
+$$\text{ID-Precision@k} = \frac{|\text{Generated}_k \cap \text{Relevant}|}{k}$$
+其中$\text{Generated}_k$是前k个生成的文档标识符。</p>
+<ol start="2">
+<li><strong>序列编辑距离（Sequence Edit Distance, SED）</strong></li>
+</ol>
+<p>衡量生成序列与gold标准的差异：
+$$\text{SED} = \frac{\text{EditDistance}(\text{pred}, \text{gold})}{\max(|\text{pred}|, |\text{gold}|)}$$</p>
+<ol start="3">
+<li><strong>语义召回率（Semantic Recall）</strong></li>
+</ol>
+<p>考虑语义等价的文档：
+$$\text{Semantic-Recall@k} = \frac{|\text{Retrieved}_k \cap \text{Semantically-Relevant}|}{|\text{Semantically-Relevant}|}$$
+这里"语义相关"通过embedding相似度或人工标注确定。</p>
+<h3 id="1522">15.2.2 端到端性能指标</h3>
+<ol>
+<li>
+<p><strong>生成成功率（Generation Success Rate, GSR）</strong>
+$$\text{GSR} = \frac{\text{成功生成有效docid的查询数}}{\text{总查询数}}$$</p>
+</li>
+<li>
+<p><strong>首位命中时间（Time to First Hit, TTFH）</strong></p>
+</li>
+</ol>
+<p>衡量生成第一个相关文档所需的时间：
+$$\text{TTFH} = t_{\text{first-relevant}} - t_{\text{query-start}}$$</p>
+<ol start="3">
+<li><strong>累积增益效率（Cumulative Gain Efficiency, CGE）</strong></li>
+</ol>
+<p>结合检索质量和计算成本：
+$$\text{CGE} = \frac{\text{DCG@k}}{\text{Computational Cost}}$$
+其中计算成本可以是FLOPs、延迟或能耗。</p>
+<h3 id="1523">15.2.3 鲁棒性指标</h3>
+<ol>
+<li><strong>对抗鲁棒性（Adversarial Robustness）</strong></li>
+</ol>
+<p>测试对轻微扰动的敏感度：
+$$\text{Robustness} = 1 - \frac{|\Delta\text{Performance}|}{|\Delta\text{Input}|}$$</p>
+<ol start="2">
+<li><strong>分布外泛化（Out-of-Distribution Generalization）</strong></li>
+</ol>
+<p>评估在未见过的查询类型上的表现：
+$$\text{OOD-Score} = \frac{\text{Performance}_{\text{OOD}}}{\text{Performance}_{\text{IID}}}$$</p>
+<h2 id="153">15.3 主流数据集与基准</h2>
+<h3 id="1531-ms-marco">15.3.1 MS MARCO</h3>
+<p><strong>数据集特点</strong>：</p>
+<ul>
+<li>规模：880万文档，100万+查询</li>
+<li>特色：真实用户查询，段落级检索</li>
+<li>挑战：查询长尾分布，标注稀疏</li>
+</ul>
+<p><strong>生成式检索适配</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># MS MARCO的docid设计示例</span>
+<span class="n">原始文档ID</span><span class="p">:</span> <span class="s2">&quot;D1234567&quot;</span>
+<span class="n">层次化ID</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;234&quot;</span><span class="p">,</span> <span class="s2">&quot;567&quot;</span><span class="p">]</span>  <span class="c1"># 便于生成模型学习</span>
+<span class="n">语义化ID</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tech&quot;</span><span class="p">,</span> <span class="s2">&quot;ml&quot;</span><span class="p">,</span> <span class="s2">&quot;bert&quot;</span><span class="p">]</span>  <span class="c1"># 基于内容聚类</span>
+</code></pre></div>
+
+<p><strong>评估协议</strong>：</p>
+<ul>
+<li>官方指标：MRR@10, Recall@1000</li>
+<li>生成式扩展：GSR, ID-Precision@10</li>
+</ul>
+<h3 id="1532-natural-questions-nq">15.3.2 Natural Questions (NQ)</h3>
+<p><strong>数据集特点</strong>：</p>
+<ul>
+<li>规模：30万真实Google查询</li>
+<li>特色：包含长短两种答案标注</li>
+<li>挑战：需要深度语言理解</li>
+</ul>
+<p><strong>生成式检索应用</strong>：</p>
+<p>NQ特别适合评估生成式检索的语言理解能力：</p>
+<div class="codehilite"><pre><span></span><code>查询：&quot;谁发明了电话？&quot;
+传统检索：返回包含&quot;电话&quot;、&quot;发明&quot;的文档
+生成式检索：直接生成 Wikipedia 页面ID &quot;Alexander_Graham_Bell&quot;
+</code></pre></div>
+
+<p><strong>评估维度</strong>：</p>
+<ol>
+<li>答案准确性（Exact Match）</li>
+<li>证据文档召回（Evidence Recall）</li>
+<li>生成流畅性（Generation Fluency）</li>
+</ol>
+<h3 id="1533-beir">15.3.3 BEIR基准套件</h3>
+<p><strong>套件组成</strong>：
+18个不同领域的检索数据集，包括：</p>
+<ul>
+<li>生物医学（TREC-COVID）</li>
+<li>金融（FiQA）</li>
+<li>科学文献（SCIFACT）</li>
+</ul>
+<p><strong>零样本评估协议</strong>：</p>
+<p>BEIR强调零样本泛化能力：</p>
+<div class="codehilite"><pre><span></span><code>训练：MS MARCO
+评估：18个异构数据集（无微调）
+</code></pre></div>
+
+<p><strong>生成式检索的BEIR挑战</strong>：</p>
+<ol>
+<li><strong>文档ID泛化</strong>：不同数据集的ID体系不一致</li>
+<li><strong>领域适应</strong>：医学、法律等专业领域的术语理解</li>
+<li><strong>长度变化</strong>：从推文到科学论文的长度差异</li>
+</ol>
+<p><strong>评估指标扩展</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># BEIR生成式评估框架</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;traditional&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;NDCG@10&#39;</span><span class="p">,</span> <span class="s1">&#39;Recall@100&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;generative&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;GSR&#39;</span><span class="p">,</span> <span class="s1">&#39;Domain-Adaptation-Score&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;efficiency&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Queries-per-Second&#39;</span><span class="p">,</span> <span class="s1">&#39;Memory-Usage&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="154">15.4 高级话题：因果推断在离线评估中的应用</h2>
+<h3 id="1541">15.4.1 从相关性到因果性</h3>
+<p>传统的离线评估往往陷入相关性陷阱，无法准确预测系统变更的真实影响。因果推断框架为生成式检索提供了更可靠的离线评估方法。</p>
+<p><strong>Simpson悖论在检索评估中的体现</strong>：</p>
+<p>考虑两个检索系统A和B的表现：</p>
+<div class="codehilite"><pre><span></span><code>整体表现：System A (NDCG=0.65) &lt; System B (NDCG=0.70)
+
+按查询类型分解：
+
+- 导航型查询：A (0.90) &gt; B (0.85)  [占比20%]
+- 信息型查询：A (0.75) &gt; B (0.70)  [占比30%]  
+- 事务型查询：A (0.55) &gt; B (0.50)  [占比50%]
+</code></pre></div>
+
+<p>虽然A在每个子类别都优于B，但整体指标却相反。这提示我们需要因果框架来理解真实效果。</p>
+<h3 id="1542">15.4.2 反事实推理框架</h3>
+<p><strong>潜在结果模型（Potential Outcomes Model）</strong>：</p>
+<p>对于每个查询$q$，定义：</p>
+<ul>
+<li>$Y_i(1)$：使用生成式检索的潜在结果</li>
+<li>$Y_i(0)$：使用传统检索的潜在结果</li>
+<li>因果效应：$\tau_i = Y_i(1) - Y_i(0)$</li>
+</ul>
+<p><strong>挑战</strong>：我们只能观察到其中一个结果（fundamental problem of causal inference）。</p>
+<p><strong>解决方案：倾向分数匹配（Propensity Score Matching）</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 伪代码：因果效应估计</span>
+<span class="k">def</span> <span class="nf">estimate_causal_effect</span><span class="p">(</span><span class="n">queries</span><span class="p">,</span> <span class="n">traditional_results</span><span class="p">,</span> <span class="n">generative_results</span><span class="p">):</span>
+    <span class="c1"># 1. 计算倾向分数（使用查询特征）</span>
+    <span class="n">propensity_scores</span> <span class="o">=</span> <span class="n">compute_propensity</span><span class="p">(</span><span class="n">queries</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+
+    <span class="c1"># 2. 匹配相似查询</span>
+    <span class="n">matched_pairs</span> <span class="o">=</span> <span class="n">match_queries</span><span class="p">(</span><span class="n">propensity_scores</span><span class="p">)</span>
+
+    <span class="c1"># 3. 估计平均处理效应(ATE)</span>
+    <span class="n">ate</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">q_treated</span><span class="p">,</span> <span class="n">q_control</span><span class="p">)</span> <span class="ow">in</span> <span class="n">matched_pairs</span><span class="p">:</span>
+        <span class="n">effect</span> <span class="o">=</span> <span class="n">generative_results</span><span class="p">[</span><span class="n">q_treated</span><span class="p">]</span> <span class="o">-</span> <span class="n">traditional_results</span><span class="p">[</span><span class="n">q_control</span><span class="p">]</span>
+        <span class="n">ate</span> <span class="o">+=</span> <span class="n">effect</span>
+
+    <span class="k">return</span> <span class="n">ate</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">matched_pairs</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="1543">15.4.3 工具变量方法</h3>
+<p>当存在未观测的混淆因素时，使用工具变量（Instrumental Variables, IV）：</p>
+<p><strong>应用场景</strong>：评估生成式检索对用户满意度的因果影响</p>
+<p>工具变量选择：</p>
+<ul>
+<li><strong>随机流量分配</strong>：A/B测试中的随机分组</li>
+<li><strong>时间断点</strong>：系统切换时间点</li>
+<li><strong>地理变量</strong>：不同地区的部署时间差</li>
+</ul>
+<p><strong>两阶段最小二乘法（2SLS）</strong>：</p>
+<p>第一阶段：$\text{GenerativeUsage}_i = \alpha + \beta \cdot \text{RandomAssignment}_i + \epsilon_i$</p>
+<p>第二阶段：$\text{Satisfaction}_i = \gamma + \delta \cdot \widehat{\text{GenerativeUsage}}_i + \nu_i$</p>
+<p>其中$\delta$是我们关心的因果效应。</p>
+<h3 id="1544">15.4.4 断点回归设计</h3>
+<p>利用阈值规则评估生成式检索的效果：</p>
+<p><strong>设计思路</strong>：</p>
+<ul>
+<li>阈值规则：查询长度&gt;10词时使用生成式检索</li>
+<li>断点附近：比较长度为9词和11词的查询表现</li>
+</ul>
+<p><strong>数学框架</strong>：
+$$\tau_{RD} = \lim_{x \downarrow c} E[Y_i | X_i = x] - \lim_{x \uparrow c} E[Y_i | X_i = x]$$
+其中$c$是阈值，$X_i$是运行变量（如查询长度）。</p>
+<p><strong>可视化分析</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">性能</span>
+<span class="w"> </span><span class="o">^</span>
+<span class="w"> </span><span class="o">|</span><span class="w">     </span><span class="err">传统检索</span><span class="w">          </span><span class="err">生成式检索</span>
+<span class="w"> </span><span class="o">|</span><span class="w">        </span><span class="p">.</span><span class="w">  </span><span class="p">.</span><span class="w">          </span><span class="o">*</span><span class="w"> </span><span class="o">*</span>
+<span class="w"> </span><span class="o">|</span><span class="w">      </span><span class="p">.</span><span class="w">   </span><span class="p">.</span><span class="w">         </span><span class="o">*</span><span class="w">   </span><span class="o">*</span>
+<span class="w"> </span><span class="o">|</span><span class="w">    </span><span class="p">.</span><span class="w">    </span><span class="p">.</span><span class="w">        </span><span class="o">*</span><span class="w">     </span><span class="o">*</span>
+<span class="w"> </span><span class="o">|</span><span class="w">  </span><span class="p">.</span><span class="w">     </span><span class="p">.</span><span class="w">  </span><span class="o">|</span><span class="w">    </span><span class="o">*</span><span class="w">      </span><span class="o">*</span>
+<span class="w"> </span><span class="o">+------------|--------------&gt;</span><span class="w"> </span><span class="err">查询长度</span>
+<span class="w">            </span><span class="mi">10</span><span class="err">词</span>
+</code></pre></div>
+
+<h3 id="1545">15.4.5 中介分析</h3>
+<p>理解生成式检索影响用户满意度的机制：</p>
+<p><strong>因果链路</strong>：</p>
+<div class="codehilite"><pre><span></span><code>生成式检索 → 响应时间 → 用户满意度
+          ↘ 结果多样性 ↗
+</code></pre></div>
+
+<p><strong>中介效应分解</strong>：</p>
+<ul>
+<li>直接效应：生成式检索直接对满意度的影响</li>
+<li>间接效应：通过响应时间和结果多样性的影响</li>
+</ul>
+<p><strong>Baron-Kenny中介分析步骤</strong>：</p>
+<ol>
+<li>确认总效应存在：生成式检索 → 满意度</li>
+<li>确认中介路径：生成式检索 → 响应时间 → 满意度</li>
+<li>计算间接效应占比
+$$\text{Mediation Ratio} = \frac{\text{Indirect Effect}}{\text{Total Effect}}$$</li>
+</ol>
+<h2 id="155-airbnbab">15.5 工业案例：Airbnb的A/B测试框架演进</h2>
+<h3 id="1551">15.5.1 背景与挑战</h3>
+<p>Airbnb在2019-2023年间逐步将搜索系统从传统的Elasticsearch迁移到包含生成式组件的混合架构。这个过程中，他们构建了一套专门针对生成式检索的评估框架。</p>
+<p><strong>核心挑战</strong>：</p>
+<ol>
+<li><strong>网络效应</strong>：房东和房客的双边市场特性</li>
+<li><strong>稀疏反馈</strong>：预订转化率低（&lt;1%）</li>
+<li><strong>长期效应</strong>：用户决策周期长（平均7天）</li>
+<li><strong>季节性</strong>：旅游需求的强季节性波动</li>
+</ol>
+<h3 id="1552">15.5.2 渐进式实验框架</h3>
+<p><strong>Phase 1: 影子模式（Shadow Mode）</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 并行运行两个系统，只记录不展示</span>
+<span class="k">def</span> <span class="nf">shadow_evaluation</span><span class="p">():</span>
+    <span class="c1"># 生产流量</span>
+    <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">production_traffic</span><span class="p">:</span>
+        <span class="c1"># 主系统（传统检索）</span>
+        <span class="n">main_results</span> <span class="o">=</span> <span class="n">elasticsearch</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">serve_to_user</span><span class="p">(</span><span class="n">main_results</span><span class="p">)</span>
+
+        <span class="c1"># 影子系统（生成式检索）</span>
+        <span class="n">shadow_results</span> <span class="o">=</span> <span class="n">generative_model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">log_for_analysis</span><span class="p">(</span><span class="n">shadow_results</span><span class="p">)</span>
+
+        <span class="c1"># 离线对比</span>
+        <span class="n">compute_metrics</span><span class="p">(</span><span class="n">main_results</span><span class="p">,</span> <span class="n">shadow_results</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>关键发现</strong>：</p>
+<ul>
+<li>生成式检索在"独特住宿"查询上表现优异</li>
+<li>长尾查询的覆盖率提升35%</li>
+<li>但在"城市+日期"精确查询上不如传统方法</li>
+</ul>
+<p><strong>Phase 2: 交错实验（Interleaving）</strong></p>
+<p>将两个系统的结果交错展示：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">位置</span><span class="mi">1</span><span class="o">:</span><span class="w"> </span><span class="err">传统检索结果</span><span class="mi">1</span>
+<span class="err">位置</span><span class="mi">2</span><span class="o">:</span><span class="w"> </span><span class="err">生成式检索结果</span><span class="mi">1</span>
+<span class="err">位置</span><span class="mi">3</span><span class="o">:</span><span class="w"> </span><span class="err">传统检索结果</span><span class="mi">2</span>
+<span class="err">位置</span><span class="mi">4</span><span class="o">:</span><span class="w"> </span><span class="err">生成式检索结果</span><span class="mi">2</span>
+<span class="o">...</span>
+</code></pre></div>
+
+<p><strong>优势</strong>：</p>
+<ul>
+<li>用户同时看到两种结果</li>
+<li>减少位置偏差</li>
+<li>更敏感的对比信号</li>
+</ul>
+<p><strong>Phase 3: 多臂赌博机（Multi-Armed Bandit）</strong></p>
+<p>动态调整生成式检索的使用比例：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">AdaptiveRouter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generative_weight</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+    <span class="k">def</span> <span class="nf">route_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">:</span>  <span class="c1"># 探索</span>
+            <span class="k">return</span> <span class="n">random_choice</span><span class="p">([</span><span class="s1">&#39;traditional&#39;</span><span class="p">,</span> <span class="s1">&#39;generative&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># 利用</span>
+            <span class="k">return</span> <span class="n">weighted_choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generative_weight</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rewards</span><span class="p">):</span>
+        <span class="c1"># Thompson Sampling更新</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generative_weight</span> <span class="o">=</span> <span class="n">thompson_sample</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="1553">15.5.3 指标体系设计</h3>
+<p><strong>短期指标（实时）</strong>：</p>
+<ul>
+<li>点击率（CTR）</li>
+<li>停留时间（Dwell Time）</li>
+<li>列表完整浏览率（List Completion Rate）</li>
+</ul>
+<p><strong>中期指标（天级）</strong>：</p>
+<ul>
+<li>预订请求率（Booking Request Rate）</li>
+<li>消息发送率（Message Rate）</li>
+<li>收藏率（Wishlist Rate）</li>
+</ul>
+<p><strong>长期指标（周/月级）</strong>：</p>
+<ul>
+<li>预订转化率（Booking Conversion）</li>
+<li>取消率（Cancellation Rate）</li>
+<li>复购率（Rebooking Rate）</li>
+<li>净推荐值（NPS）</li>
+</ul>
+<p><strong>北极星指标</strong>：</p>
+<div class="codehilite"><pre><span></span><code>Nights Booked per Search Session
+= (搜索会话数) × (转化率) × (平均预订晚数)
+</code></pre></div>
+
+<h3 id="1554">15.5.4 因果推断实践</h3>
+<ol>
+<li><strong>溢出效应处理</strong></li>
+</ol>
+<p>房源的竞争关系导致溢出效应：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 市场级别随机化</span>
+<span class="k">def</span> <span class="nf">market_level_randomization</span><span class="p">():</span>
+    <span class="n">markets</span> <span class="o">=</span> <span class="n">get_all_markets</span><span class="p">()</span>
+    <span class="n">treatment_markets</span> <span class="o">=</span> <span class="n">random_sample</span><span class="p">(</span><span class="n">markets</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">market</span> <span class="ow">in</span> <span class="n">markets</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">market</span> <span class="ow">in</span> <span class="n">treatment_markets</span><span class="p">:</span>
+            <span class="n">enable_generative_search</span><span class="p">(</span><span class="n">market</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">use_traditional_search</span><span class="p">(</span><span class="n">market</span><span class="p">)</span>
+</code></pre></div>
+
+<ol start="2">
+<li><strong>异质性处理效应分析</strong></li>
+</ol>
+<p>不同用户群体的响应差异：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># CATE (Conditional Average Treatment Effect)估计</span>
+<span class="n">segments</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;first_time&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">bookings</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s1">&#39;frequent&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">bookings</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s1">&#39;business&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">trip_type</span> <span class="o">==</span> <span class="s1">&#39;business&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;leisure&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">trip_type</span> <span class="o">==</span> <span class="s1">&#39;leisure&#39;</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">segment_name</span><span class="p">,</span> <span class="n">segment_filter</span> <span class="ow">in</span> <span class="n">segments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">segment_users</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="n">segment_filter</span><span class="p">,</span> <span class="n">all_users</span><span class="p">)</span>
+    <span class="n">cate</span> <span class="o">=</span> <span class="n">estimate_treatment_effect</span><span class="p">(</span><span class="n">segment_users</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">segment_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">cate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>发现</strong>：</p>
+<ul>
+<li>新用户对生成式检索接受度高（CATE=+8.5%）</li>
+<li>商务用户偏好传统精确搜索（CATE=-2.1%）</li>
+</ul>
+<h3 id="1555">15.5.5 经验教训</h3>
+<ol>
+<li><strong>渐进式部署的价值</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>影子模式(0%) → 1%流量 → 5%流量 → 20%流量 → 50%流量 → 全量
+   2个月        1周      2周       1个月      1个月     
+</code></pre></div>
+
+<p>每个阶段都有明确的成功标准和回滚条件。</p>
+<ol start="2">
+<li><strong>混合架构的优势</strong></li>
+</ol>
+<p>最终方案：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">hybrid_search</span><span class="p">(</span><span class="n">query</span><span class="p">):</span>
+    <span class="c1"># 查询分类</span>
+    <span class="n">query_type</span> <span class="o">=</span> <span class="n">classify_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;navigational&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">traditional_search</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;exploratory&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">generative_search</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># 混合</span>
+        <span class="n">trad_results</span> <span class="o">=</span> <span class="n">traditional_search</span><span class="p">(</span><span class="n">query</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">gen_results</span> <span class="o">=</span> <span class="n">generative_search</span><span class="p">(</span><span class="n">query</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">merge_and_rerank</span><span class="p">(</span><span class="n">trad_results</span><span class="p">,</span> <span class="n">gen_results</span><span class="p">)</span>
+</code></pre></div>
+
+<ol start="3">
+<li><strong>长期效应的重要性</strong></li>
+</ol>
+<p>短期指标可能误导：</p>
+<ul>
+<li>Week 1: 生成式检索CTR +5%（新颖性）</li>
+<li>Week 4: CTR回落到+1%（新颖性消退）</li>
+<li>Month 3: 复购率+3%（更好的长期匹配）</li>
+</ul>
+<ol start="4">
+<li><strong>可解释性的业务价值</strong></li>
+</ol>
+<p>为每个生成的结果提供解释：</p>
+<div class="codehilite"><pre><span></span><code>推荐原因：
+
+- &quot;与您搜索的&#39;树屋&#39;风格相似&quot;
+- &quot;其他预订了A房源的用户也喜欢&quot;
+- &quot;符合您的&#39;安静&#39;、&#39;自然&#39;偏好&quot;
+</code></pre></div>
+
+<h2 id="156">15.6 本章小结</h2>
+<p>本章深入探讨了生成式检索系统的评估方法论，从理论到实践，从离线到在线，构建了完整的评估体系：</p>
+<p><strong>核心要点</strong>：</p>
+<ol>
+<li>
+<p><strong>评估挑战的本质</strong>：生成式检索的离散输出特性和创造性本质带来了与传统检索截然不同的评估挑战，需要重新思考评估范式。</p>
+</li>
+<li>
+<p><strong>新型指标的必要性</strong>：传统的排序指标不再适用，需要设计考虑生成质量、语义一致性和计算效率的综合指标体系。</p>
+</li>
+<li>
+<p><strong>因果推断的价值</strong>：通过倾向分数匹配、工具变量、断点回归等方法，可以更准确地估计生成式检索的真实效果，避免相关性陷阱。</p>
+</li>
+<li>
+<p><strong>渐进式实验的智慧</strong>：Airbnb案例展示了从影子模式到全量部署的渐进路径，强调了风险控制和持续学习的重要性。</p>
+</li>
+<li>
+<p><strong>混合架构的优越性</strong>：纯生成式方案并非最优，根据查询类型智能路由的混合架构能够发挥各自优势。</p>
+</li>
+</ol>
+<p><strong>关键公式回顾</strong>：</p>
+<ul>
+<li>标识符精确率：$\text{ID-Precision@k} = \frac{|\text{Generated}_k \cap \text{Relevant}|}{k}$</li>
+<li>因果效应：$\tau_i = Y_i(1) - Y_i(0)$</li>
+<li>断点回归：$\tau_{RD} = \lim_{x \downarrow c} E[Y_i | X_i = x] - \lim_{x \uparrow c} E[Y_i | X_i = x]$</li>
+<li>中介效应：$\text{Mediation Ratio} = \frac{\text{Indirect Effect}}{\text{Total Effect}}$</li>
+</ul>
+<p><strong>未来展望</strong>：</p>
+<p>评估体系的发展方向包括：</p>
+<ul>
+<li>更好的在线-离线一致性</li>
+<li>考虑用户长期价值的评估框架</li>
+<li>多目标优化的评估方法</li>
+<li>可解释性与性能的平衡度量</li>
+</ul>
+<h2 id="157">15.7 练习题</h2>
+<h3 id="_1">基础题（理解概念）</h3>
+<p><strong>练习15.1</strong> 设计评估指标
+给定一个生成式检索系统输出docid序列["d1", "d2", "d3", "d4"]，而相关文档集合为{"d1", "d3", "d5"}。计算：
+a) ID-Precision@2
+b) ID-Precision@4
+c) Semantic Recall（假设"d2"与"d5"语义相似）</p>
+<p><em>Hint</em>: 注意生成序列的顺序性和语义等价性。</p>
+<details>
+<summary>参考答案</summary>
+<p>a) ID-Precision@2 = 1/2 = 0.5（前2个中只有d1相关）
+b) ID-Precision@4 = 2/4 = 0.5（4个中d1和d3相关）
+c) 如果d2与d5语义相似，则Semantic Recall = 3/3 = 1.0（所有语义相关的都被召回）</p>
+</details>
+<p><strong>练习15.2</strong> Simpson悖论分析
+某公司测试两个检索系统，数据如下：</p>
+<ul>
+<li>系统A：早班查询成功率70%（1000次），晚班成功率50%（100次）</li>
+<li>系统B：早班查询成功率60%（100次），晚班成功率40%（1000次）</li>
+</ul>
+<p>计算两个系统的整体成功率，并解释Simpson悖论。</p>
+<p><em>Hint</em>: 考虑不同时段的查询量权重。</p>
+<details>
+<summary>参考答案</summary>
+<p>系统A整体成功率 = (700 + 50) / 1100 = 68.2%
+系统B整体成功率 = (60 + 400) / 1100 = 41.8%</p>
+<p>虽然A在每个时段都优于B，但如果简单比较各时段平均值（A: 60%, B: 50%），会得出相反结论。这说明需要考虑查询分布的影响。</p>
+</details>
+<p><strong>练习15.3</strong> BEIR零样本评估
+解释为什么生成式检索在BEIR基准上的零样本性能通常低于密集检索方法，并提出三种改进策略。</p>
+<p><em>Hint</em>: 考虑文档标识符的泛化问题。</p>
+<details>
+<summary>参考答案</summary>
+<p>原因：</p>
+<ol>
+<li>文档ID体系不一致，难以泛化</li>
+<li>生成式模型需要记忆文档映射</li>
+<li>领域特定术语的理解困难</li>
+</ol>
+<p>改进策略：</p>
+<ol>
+<li>使用语义化的通用标识符</li>
+<li>引入领域自适应的预训练</li>
+<li>设计可迁移的层次化ID结构</li>
+</ol>
+</details>
+<h3 id="_2">挑战题（深入思考）</h3>
+<p><strong>练习15.4</strong> 因果效应估计
+某电商平台进行A/B测试，treatment组使用生成式推荐，control组使用协同过滤。已知：</p>
+<ul>
+<li>Treatment组：1000用户，平均购买3.5件，用户活跃度高</li>
+<li>Control组：1000用户，平均购买2.8件，用户活跃度低</li>
+</ul>
+<p>如何使用倾向分数匹配估计真实的因果效应？设计具体步骤。</p>
+<p><em>Hint</em>: 用户活跃度是混淆因素。</p>
+<details>
+<summary>参考答案</summary>
+<p>步骤：</p>
+<ol>
+<li>收集用户特征（活跃度、历史购买、浏览时长等）</li>
+<li>训练倾向分数模型：P(Treatment|Features)</li>
+<li>使用最近邻匹配，为每个treatment用户找到倾向分数相近的control用户</li>
+<li>
+<p>计算匹配后的平均处理效应：
+   ATE = Σ(Y_treatment_i - Y_control_matched_i) / n</p>
+</li>
+<li>
+<p>进行敏感性分析，检查隐藏偏差的影响</p>
+</li>
+</ol>
+<p>关键：确保匹配后两组的协变量平衡。</p>
+</details>
+<p><strong>练习15.5</strong> 长期效应评估设计
+设计一个评估框架，用于衡量生成式检索对用户长期行为的影响（例如3个月后的留存率）。考虑：</p>
+<ul>
+<li>如何处理用户流失</li>
+<li>如何分离季节性效应</li>
+<li>如何设置合理的对照组</li>
+</ul>
+<p><em>Hint</em>: 考虑生存分析和时间序列方法。</p>
+<details>
+<summary>参考答案</summary>
+<p>框架设计：</p>
+<ol>
+<li><strong>用户队列设计</strong>：按加入时间分组，跟踪固定队列</li>
+<li><strong>生存分析</strong>：使用Cox比例风险模型，treatment作为协变量</li>
+<li><strong>季节性处理</strong>：
+   - 使用STL分解去除季节成分
+   - 或选择同期历史数据作为基准</li>
+<li><strong>对照组设置</strong>：
+   - 地理区域随机化
+   - 或使用合成控制法构建</li>
+<li><strong>中断时间序列分析</strong>：检测系统切换点的影响</li>
+</ol>
+</details>
+<p><strong>练习15.6</strong> 多目标优化评估
+生成式推荐系统需要同时优化：</p>
+<ul>
+<li>点击率（CTR）</li>
+<li>转化率（CVR）  </li>
+<li>多样性（Diversity）</li>
+<li>计算成本（Cost）</li>
+</ul>
+<p>设计一个综合评估框架，包括：
+a) 如何标准化不同量纲的指标
+b) 如何设置权重
+c) 如何处理指标间的权衡</p>
+<p><em>Hint</em>: 考虑Pareto前沿和多目标优化理论。</p>
+<details>
+<summary>参考答案</summary>
+<p>a) 标准化方法：</p>
+<ul>
+<li>Min-Max标准化：x' = (x - min) / (max - min)</li>
+<li>Z-score标准化：x' = (x - μ) / σ</li>
+<li>排名标准化：转换为百分位数</li>
+</ul>
+<p>b) 权重设置：</p>
+<ul>
+<li>业务优先级法：根据KPI重要性</li>
+<li>AHP层次分析法：两两比较</li>
+<li>数据驱动：基于业务价值函数</li>
+</ul>
+<p>c) 权衡处理：</p>
+<ul>
+<li>构建Pareto前沿，识别非劣解</li>
+<li>使用ε-约束法：固定某些指标的最低要求</li>
+<li>动态权重：根据当前表现调整权重</li>
+</ul>
+<p>综合得分：Score = w1<em>CTR' + w2</em>CVR' + w3<em>Diversity' - w4</em>Cost'
+约束条件：Cost' &lt; threshold</p>
+</details>
+<p><strong>练习15.7</strong> 在线学习与评估
+设计一个在线学习系统，能够：</p>
+<ul>
+<li>实时更新生成式模型</li>
+<li>持续评估性能变化</li>
+<li>自动检测性能退化并回滚</li>
+</ul>
+<p>给出系统架构和关键算法。</p>
+<p><em>Hint</em>: 考虑概念漂移检测和增量学习。</p>
+<details>
+<summary>参考答案</summary>
+<p>系统架构：</p>
+<div class="codehilite"><pre><span></span><code>用户请求 → 路由器 → [模型A(stable) | 模型B(learning)]
+                ↓
+            性能监控 → 漂移检测 → 决策系统
+                ↓
+            模型更新 ← 增量训练 ← 新数据流
+</code></pre></div>
+
+<p>关键算法：</p>
+<ol>
+<li>
+<p><strong>增量学习</strong>：
+   - EWC (Elastic Weight Consolidation)防止灾难性遗忘
+   - Replay Buffer保存历史样本</p>
+</li>
+<li>
+<p><strong>漂移检测</strong>：
+   - ADWIN算法检测分布变化
+   - Page-Hinkley test检测均值变化</p>
+</li>
+<li>
+<p><strong>自动回滚</strong>：</p>
+</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="n">performance_drop</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+    <span class="n">rollback_to_stable</span><span class="p">()</span>
+    <span class="n">alert_team</span><span class="p">()</span>
+</code></pre></div>
+
+<ol start="4">
+<li><strong>A/B测试自动化</strong>：
+   - Sequential testing减少决策时间
+   - Multi-armed bandit动态分配流量</li>
+</ol>
+</details>
+<h2 id="158-gotchas">15.8 常见陷阱与错误（Gotchas）</h2>
+<h3 id="1">1. 评估偏差陷阱</h3>
+<p><strong>问题</strong>：只关注平均性能，忽略尾部表现</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 错误做法</span>
+<span class="n">avg_performance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">all_queries_performance</span><span class="p">)</span>
+
+<span class="c1"># 正确做法</span>
+<span class="n">p50</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">all_queries_performance</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">p95</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">all_queries_performance</span><span class="p">,</span> <span class="mi">95</span><span class="p">)</span>
+<span class="n">p99</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">all_queries_performance</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>解决</strong>：始终报告性能分布，特别关注长尾查询。</p>
+<h3 id="2">2. 数据泄露陷阱</h3>
+<p><strong>问题</strong>：测试集信息泄露到训练过程</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 错误：使用全部数据生成文档标识符</span>
+<span class="n">all_docs</span> <span class="o">=</span> <span class="n">train_docs</span> <span class="o">+</span> <span class="n">test_docs</span>
+<span class="n">doc_ids</span> <span class="o">=</span> <span class="n">generate_ids</span><span class="p">(</span><span class="n">all_docs</span><span class="p">)</span>
+
+<span class="c1"># 正确：只使用训练数据</span>
+<span class="n">doc_ids</span> <span class="o">=</span> <span class="n">generate_ids</span><span class="p">(</span><span class="n">train_docs</span><span class="p">)</span>
+<span class="c1"># 测试时处理未见文档</span>
+</code></pre></div>
+
+<h3 id="3">3. 位置偏差忽视</h3>
+<p><strong>问题</strong>：用户倾向点击靠前的结果，影响评估准确性</p>
+<p><strong>解决</strong>：</p>
+<ul>
+<li>使用位置无关的指标（如nDCG）</li>
+<li>实施结果随机化或交错实验</li>
+<li>收集停留时间等隐式反馈</li>
+</ul>
+<h3 id="4">4. 短期指标过度优化</h3>
+<p><strong>问题</strong>：过度关注CTR等短期指标，损害长期用户价值</p>
+<p><strong>解决</strong>：</p>
+<ul>
+<li>设置多个时间窗口的指标</li>
+<li>跟踪用户生命周期价值（LTV）</li>
+<li>平衡探索与利用</li>
+</ul>
+<h3 id="5">5. 统计显著性误判</h3>
+<p><strong>问题</strong>：样本量不足就下结论</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 需要进行功效分析</span>
+<span class="kn">from</span> <span class="nn">statsmodels.stats.power</span> <span class="kn">import</span> <span class="n">TTestPower</span>
+<span class="n">power_analysis</span> <span class="o">=</span> <span class="n">TTestPower</span><span class="p">()</span>
+<span class="n">sample_size</span> <span class="o">=</span> <span class="n">power_analysis</span><span class="o">.</span><span class="n">solve_power</span><span class="p">(</span>
+    <span class="n">effect_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># 期望检测的效应大小</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>       <span class="c1"># 显著性水平</span>
+    <span class="n">power</span><span class="o">=</span><span class="mf">0.8</span>         <span class="c1"># 统计功效</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="6">6. 多重比较问题</h3>
+<p><strong>问题</strong>：同时测试多个假设时，假阳性率增加</p>
+<p><strong>解决</strong>：使用Bonferroni校正或FDR控制</p>
+<h2 id="159">15.9 最佳实践检查清单</h2>
+<h3 id="_3">评估设计审查</h3>
+<ul>
+<li>[ ] <strong>指标完整性</strong></li>
+<li>包含业务指标和技术指标</li>
+<li>覆盖短期和长期效果</li>
+<li>
+<p>考虑用户体验指标</p>
+</li>
+<li>
+<p>[ ] <strong>实验设计合理性</strong></p>
+</li>
+<li>样本量计算充分</li>
+<li>随机化方案正确</li>
+<li>
+<p>控制变量识别完整</p>
+</li>
+<li>
+<p>[ ] <strong>数据质量保证</strong></p>
+</li>
+<li>数据收集管道可靠</li>
+<li>异常值处理策略明确</li>
+<li>缺失数据处理合理</li>
+</ul>
+<h3 id="_4">因果推断检查</h3>
+<ul>
+<li>[ ] <strong>混淆因素控制</strong></li>
+<li>识别所有潜在混淆因素</li>
+<li>选择合适的因果推断方法</li>
+<li>
+<p>进行敏感性分析</p>
+</li>
+<li>
+<p>[ ] <strong>假设验证</strong></p>
+</li>
+<li>检查倾向分数重叠</li>
+<li>验证工具变量有效性</li>
+<li>确认平行趋势假设（DID）</li>
+</ul>
+<h3 id="_5">在线评估准备</h3>
+<ul>
+<li>[ ] <strong>监控体系完备</strong></li>
+<li>实时指标仪表板</li>
+<li>异常告警机制</li>
+<li>
+<p>性能退化检测</p>
+</li>
+<li>
+<p>[ ] <strong>回滚方案就绪</strong></p>
+</li>
+<li>明确回滚触发条件</li>
+<li>回滚流程自动化</li>
+<li>数据备份策略</li>
+</ul>
+<h3 id="_6">结果解释规范</h3>
+<ul>
+<li>[ ] <strong>统计严谨性</strong></li>
+<li>报告置信区间</li>
+<li>进行多重比较校正</li>
+<li>
+<p>说明效应大小</p>
+</li>
+<li>
+<p>[ ] <strong>业务相关性</strong></p>
+</li>
+<li>结果转化为业务语言</li>
+<li>提供可行动建议</li>
+<li>评估实施成本</li>
+</ul>
+<h3 id="_7">持续改进机制</h3>
+<ul>
+<li>[ ] <strong>学习循环建立</strong></li>
+<li>定期回顾评估结果</li>
+<li>更新评估方法</li>
+<li>
+<p>积累最佳实践</p>
+</li>
+<li>
+<p>[ ] <strong>知识沉淀</strong></p>
+</li>
+<li>记录实验经验</li>
+<li>维护评估手册</li>
+<li>培训团队成员</li>
+</ul>
+            </article>
+            
+            <nav class="page-nav"><a href="chapter14.html" class="nav-link prev">← 第14章：效率优化与系统设计</a><a href="chapter16.html" class="nav-link next">第16章：未来方向与开放问题 →</a></nav>
+        </main>
+    </div>
+</body>
+</html>

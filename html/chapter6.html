@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="./">
+    <title>第6章：解码策略与推理优化</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/highlight.css">
+    <script src="assets/script.js" defer></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']],
+                processEscapes: false,
+                packages: {'[+]': ['noerrors', 'ams']}
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            loader: {
+                load: ['[tex]/noerrors', '[tex]/ams']
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>目录</h3>
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <div class="sidebar-search">
+                <input type="text" id="sidebar-search-input" placeholder="搜索..." autocomplete="off">
+            </div>
+            <div id="tree-container">
+                <nav class="tree-nav" role="tree">
+                    <div class="tree-item " >
+                        <a href="index.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">生成式检索与推荐系统教程</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter1.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第1章：从传统检索到生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter2.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第2章：预备知识速览</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter3.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第3章：差异化搜索索引（DSI）</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter4.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第4章：文档表示与标识符生成</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter5.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第5章：生成式检索的训练策略</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item active" >
+                        <a href="chapter6.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第6章：解码策略与推理优化</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter7.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第7章：NCI与可扩展性</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter8.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第8章：GENRE与实体检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter9.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第9章：多模态生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter10.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第10章：生成式推荐基础</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter11.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第11章：序列推荐与生成模型</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter12.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第12章：对话式推荐系统</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter13.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第13章：大语言模型时代的生成式检索</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter14.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第14章：效率优化与系统设计</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter15.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第15章：评估指标与基准测试</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="chapter16.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">第16章：未来方向与开放问题</span>
+                        </a>
+                    </div>
+                
+                    <div class="tree-item " >
+                        <a href="CLAUDE.html" class="tree-link">
+                            <span class="tree-icon">📄</span>
+                            <span class="tree-title">Untitled</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </nav>
+        
+        <main class="content">
+            <article>
+                <h1 id="6">第6章：解码策略与推理优化</h1>
+<p>生成式检索将文档检索问题转化为序列生成任务，这使得解码策略的选择变得至关重要。与传统检索方法的简单排序不同，生成式方法需要在庞大的文档ID空间中进行高效且准确的序列生成。本章深入探讨各种解码策略，从约束解码到高级的非自回归方法，以及如何在保持检索质量的同时优化推理效率。我们将特别关注实际部署中的挑战，包括延迟、吞吐量和内存占用的权衡。</p>
+<h2 id="constrained-decoding">约束解码（Constrained Decoding）</h2>
+<p>在生成式检索中，模型需要生成有效的文档标识符序列。与开放域文本生成不同，文档ID必须对应于实际存在的文档，这就需要约束解码机制来确保生成的有效性。</p>
+<h3 id="_1">硬约束与软约束</h3>
+<p>约束解码可以分为两大类：硬约束和软约束。</p>
+<p><strong>硬约束</strong>确保生成的每个token都来自有效的词汇表子集。在生成式检索中，这意味着：</p>
+<div class="codehilite"><pre><span></span><code>Valid_tokens(prefix) = {t | prefix + t ∈ Prefix(DocIDs)}
+</code></pre></div>
+
+<p>其中<code>Prefix(DocIDs)</code>表示所有有效文档ID的前缀集合。硬约束的实现通常采用掩码机制：</p>
+<div class="codehilite"><pre><span></span><code><span class="w">        </span><span class="n">Step</span><span class="w"> </span><span class="mi">1</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">START</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nl">可选</span><span class="p">:</span><span class="w"> </span><span class="err">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="err">}</span>
+<span class="w">        </span><span class="n">Step</span><span class="w"> </span><span class="mi">2</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">START, 2</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nl">可选</span><span class="p">:</span><span class="w"> </span><span class="err">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="err">}</span><span class="w">  </span>
+<span class="w">        </span><span class="n">Step</span><span class="w"> </span><span class="mi">3</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">START, 2, 3</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nl">可选</span><span class="p">:</span><span class="w"> </span><span class="err">{</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="err">}</span>
+
+<span class="w">        </span><span class="nl">词汇表掩码示例</span><span class="p">:</span>
+<span class="w">        </span><span class="o">[</span><span class="n">1, 1, 1, 1, 1, 0, 0, ...</span><span class="o">]</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">Step</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="o">[</span><span class="n">1, 1, 0, 1, 0, 0, 0, 1, 0, 1, ...</span><span class="o">]</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">Step</span><span class="w"> </span><span class="mi">2</span>
+</code></pre></div>
+
+<p><strong>软约束</strong>则通过调整概率分布来引导生成，而不完全禁止某些token：</p>
+<p>$$p'(t|prefix) = \frac{p(t|prefix) \cdot \mathbb{1}[t \in Valid(prefix)]^\alpha}{\sum_{t'} p(t'|prefix) \cdot \mathbb{1}[t' \in Valid(prefix)]^\alpha}$$
+其中$\alpha$控制约束的强度，$\alpha \to \infty$时退化为硬约束。</p>
+<h3 id="trie-based">Trie-based约束实现</h3>
+<p>Trie（前缀树）是实现约束解码的核心数据结构。每个节点代表一个前缀，叶节点对应完整的文档ID：</p>
+<div class="codehilite"><pre><span></span><code>                    root
+                   /  |  \
+                  1   2   3
+                 /|   |\   \
+                0 2   0 3   4
+               /  |   |  \   \
+              5   3   1   7   5
+
+    对应文档IDs: {105, 123, 201, 237, 345}
+</code></pre></div>
+
+<p>Trie的关键操作包括：</p>
+<ol>
+<li><strong>前缀验证</strong>：O(k)时间复杂度，k为当前前缀长度</li>
+<li><strong>有效后继获取</strong>：O(|Σ|)，Σ为词汇表大小</li>
+<li><strong>动态更新</strong>：支持增量添加新文档ID</li>
+</ol>
+<h3 id="id">文档ID空间的特殊约束</h3>
+<p>生成式检索的文档ID设计直接影响约束解码的效率。不同的ID设计策略带来不同的约束特性和计算复杂度。</p>
+<p><strong>层次化ID</strong>：如<code>[类别][子类][文档号]</code>的结构允许逐层约束：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">类别阶段</span><span class="o">:</span><span class="w"> </span><span class="n">p</span><span class="o">(</span><span class="n">c</span><span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">softmax</span><span class="o">(</span><span class="n">W_c</span><span class="w"> </span><span class="err">·</span><span class="w"> </span><span class="n">h_0</span><span class="o">)</span>
+<span class="err">子类阶段</span><span class="o">:</span><span class="w"> </span><span class="n">p</span><span class="o">(</span><span class="n">s</span><span class="o">|</span><span class="n">c</span><span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">softmax</span><span class="o">(</span><span class="n">W_s</span><span class="o">^</span><span class="n">c</span><span class="w"> </span><span class="err">·</span><span class="w"> </span><span class="n">h_1</span><span class="o">)</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="err">条件参数</span>
+<span class="err">文档阶段</span><span class="o">:</span><span class="w"> </span><span class="n">p</span><span class="o">(</span><span class="n">d</span><span class="o">|</span><span class="n">c</span><span class="o">,</span><span class="n">s</span><span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">softmax</span><span class="o">(</span><span class="n">W_d</span><span class="o">^{</span><span class="n">c</span><span class="o">,</span><span class="n">s</span><span class="o">}</span><span class="w"> </span><span class="err">·</span><span class="w"> </span><span class="n">h_2</span><span class="o">)</span>
+</code></pre></div>
+
+<p>层次化设计的优势在于每一层的决策空间相对较小。例如，如果有1000个类别、每类100个子类、每子类1000个文档，则每步只需从最多1000个选项中选择，而非从1亿个文档中直接选择。这种分解极大降低了计算复杂度：
+$$\text{Complexity}_{hierarchical} = O(C + S + D) \ll O(C \times S \times D) = \text{Complexity}_{flat}$$
+<strong>语义聚类ID</strong>：相似文档共享前缀，可利用语义信息进行软约束：</p>
+<div class="codehilite"><pre><span></span><code>Similarity_boost(t, query) = exp(cos(embed(t), embed(query)) / τ)
+p&#39;(t|prefix, query) ∝ p(t|prefix) · Similarity_boost(t, query)
+</code></pre></div>
+
+<p>语义聚类的关键在于构建高质量的聚类树。常用方法包括：</p>
+<ul>
+<li><strong>K-means层次聚类</strong>：递归应用K-means，每层划分k个簇</li>
+<li><strong>学习索引(Learned Index)</strong>：端到端学习最优划分边界</li>
+<li><strong>平衡树构建</strong>：确保每个叶节点包含相近数量的文档，避免热点</li>
+</ul>
+<p><strong>数值ID的特殊处理</strong>：
+当使用数值ID（如0-999999）时，可以利用数值属性进行高效约束：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">numerical_constraint</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">min_id</span><span class="p">,</span> <span class="n">max_id</span><span class="p">):</span>
+    <span class="c1"># 利用数值范围快速剪枝</span>
+    <span class="n">prefix_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="p">))</span>
+    <span class="n">prefix_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+
+    <span class="c1"># 计算当前前缀可达的数值范围</span>
+    <span class="n">min_reachable</span> <span class="o">=</span> <span class="n">prefix_val</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="mi">6</span> <span class="o">-</span> <span class="n">prefix_len</span><span class="p">))</span>
+    <span class="n">max_reachable</span> <span class="o">=</span> <span class="p">(</span><span class="n">prefix_val</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="mi">6</span> <span class="o">-</span> <span class="n">prefix_len</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">max_reachable</span> <span class="o">&lt;</span> <span class="n">min_id</span> <span class="ow">or</span> <span class="n">min_reachable</span> <span class="o">&gt;</span> <span class="n">max_id</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># 该前缀无法到达有效ID</span>
+
+    <span class="c1"># 返回有效的下一位数字</span>
+    <span class="n">valid_digits</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">digit</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">new_prefix</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">digit</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">is_valid_prefix</span><span class="p">(</span><span class="n">new_prefix</span><span class="p">,</span> <span class="n">min_id</span><span class="p">,</span> <span class="n">max_id</span><span class="p">):</span>
+            <span class="n">valid_digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">digit</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">valid_digits</span>
+</code></pre></div>
+
+<h2 id="beam-search">Beam Search变体</h2>
+<p>Beam Search是生成式检索中最常用的解码算法，但标准版本并不完全适合检索任务的特殊需求。本节探讨针对检索优化的各种变体。</p>
+<h3 id="beam-search_1">标准Beam Search回顾</h3>
+<p>标准Beam Search维护固定大小k的候选序列集合：</p>
+<div class="codehilite"><pre><span></span><code><span class="nl">初始化</span><span class="p">:</span><span class="w"> </span><span class="n">beams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">{seq: [START</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">score</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="err">}]</span>
+
+<span class="k">For</span><span class="w"> </span><span class="n">step</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="mf">1.</span><span class="p">.</span><span class="nl">max_length</span><span class="p">:</span>
+<span class="w">    </span><span class="n">candidates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span>
+<span class="w">    </span><span class="k">For</span><span class="w"> </span><span class="n">beam</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">beams</span><span class="p">:</span>
+<span class="w">        </span><span class="k">For</span><span class="w"> </span><span class="n">token</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">vocabulary</span><span class="p">:</span>
+<span class="w">            </span><span class="n">new_seq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beam</span><span class="p">.</span><span class="n">seq</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">[</span><span class="n">token</span><span class="o">]</span>
+<span class="w">            </span><span class="n">new_score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beam</span><span class="p">.</span><span class="n">score</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="n">p</span><span class="p">(</span><span class="n">token</span><span class="o">|</span><span class="n">beam</span><span class="p">.</span><span class="n">seq</span><span class="p">))</span>
+<span class="w">            </span><span class="n">candidates</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="err">{</span><span class="nl">seq</span><span class="p">:</span><span class="w"> </span><span class="n">new_seq</span><span class="p">,</span><span class="w"> </span><span class="nl">score</span><span class="p">:</span><span class="w"> </span><span class="n">new_score</span><span class="err">}</span><span class="p">)</span>
+<span class="w">    </span><span class="n">beams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">top_k</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">)</span>
+</code></pre></div>
+
+<p>在检索场景中，标准Beam Search存在几个问题：</p>
+<ol>
+<li><strong>早停问题</strong>：不同文档ID长度不一</li>
+<li><strong>多样性不足</strong>：倾向于生成相似的ID序列</li>
+<li><strong>计算冗余</strong>：许多候选序列共享长前缀</li>
+</ol>
+<h3 id="diverse-beam-search">Diverse Beam Search</h3>
+<p>为增加检索结果的多样性，Diverse Beam Search将beam分组，组间施加多样性惩罚：</p>
+<div class="codehilite"><pre><span></span><code>Groups = G个组，每组k/G个beam
+For group g in 1..G:
+    diversity_penalty(seq, prev_groups) = λ · max_{s∈prev} sim(seq, s)
+    score&#39;(seq) = score(seq) - diversity_penalty(seq, groups[1:g-1])
+</code></pre></div>
+
+<p>多样性度量可以基于：</p>
+<ul>
+<li><strong>序列编辑距离</strong>：Levenshtein距离</li>
+<li><strong>语义相似度</strong>：嵌入空间的余弦相似度</li>
+<li><strong>前缀重叠度</strong>：共享前缀长度</li>
+</ul>
+<h3 id="length-normalized-beam-search">Length-Normalized Beam Search</h3>
+<p>文档ID长度差异导致短序列偏好问题。长度归一化通过调整评分机制解决：
+$$score_{norm}(seq) = \frac{1}{|seq|^\alpha} \sum_{i=1}^{|seq|} \log p(t_i|t_{&lt;i})$$
+其中$\alpha \in [0.6, 1.0]$是长度惩罚因子。实践中，可以根据文档ID分布动态调整：</p>
+<div class="codehilite"><pre><span></span><code>α(length) = α_base + β · (length - avg_length) / std_length
+</code></pre></div>
+
+<h3 id="adaptive-beam-size">Adaptive Beam Size</h3>
+<p>固定beam size在不同查询难度下效率不一。自适应策略根据置信度动态调整，这种动态调整不仅考虑当前步的不确定性，还要考虑历史信息和全局约束。</p>
+<div class="codehilite"><pre><span></span><code>置信度度量:
+
+<span class="k">-</span> 熵: H(p) = -Σ p(t) log p(t)
+<span class="k">-</span> Top-k概率和: Σ_{i=1}^k p_i
+<span class="k">-</span> 概率比: p_1 / p_2
+<span class="k">-</span> 预测方差: Var(p) = Σ p_i(1-p_i)
+
+动态调整规则:
+if H(p) &lt; threshold_low:
+    beam_size = max(2, beam_size // 2)
+elif H(p) &gt; threshold_high:
+    beam_size = min(max_beam, beam_size * 2)
+</code></pre></div>
+
+<p><strong>多维度自适应策略</strong>：</p>
+<ol>
+<li><strong>查询复杂度自适应</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">compute_query_complexity</span><span class="p">(</span><span class="n">query</span><span class="p">):</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">()),</span>
+        <span class="s1">&#39;rare_terms&#39;</span><span class="p">:</span> <span class="n">count_rare_terms</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
+        <span class="s1">&#39;ambiguity&#39;</span><span class="p">:</span> <span class="n">compute_semantic_ambiguity</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
+        <span class="s1">&#39;domain_specificity&#39;</span><span class="p">:</span> <span class="n">get_domain_score</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">weighted_sum</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span>
+
+<span class="n">beam_size</span> <span class="o">=</span> <span class="n">base_size</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">complexity_factor</span> <span class="o">*</span> <span class="n">query_complexity</span><span class="p">)</span>
+</code></pre></div>
+
+<ol start="2">
+<li><strong>深度自适应</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">depth_adaptive_beam</span><span class="p">(</span><span class="n">current_depth</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">):</span>
+    <span class="c1"># 越深入解码树，beam size越小</span>
+    <span class="n">decay_factor</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="o">**</span> <span class="p">(</span><span class="n">current_depth</span> <span class="o">/</span> <span class="n">max_depth</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">initial_beam_size</span> <span class="o">*</span> <span class="n">decay_factor</span><span class="p">)</span>
+</code></pre></div>
+
+<ol start="3">
+<li><strong>性能自适应</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">PerformanceAdaptiveBeam</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_latency</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_latency</span> <span class="o">=</span> <span class="n">target_latency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">adjust_beam_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_size</span><span class="p">,</span> <span class="n">last_latency</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">last_latency</span><span class="p">)</span>
+        <span class="n">avg_latency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">avg_latency</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_latency</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">current_size</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">avg_latency</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_latency</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">current_size</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">current_size</span>
+</code></pre></div>
+
+<p>实验表明，自适应beam size可以在保持检索质量的同时减少30-50%的计算量。在实际部署中，不同类型查询的beam size分布呈现明显模式：</p>
+<ul>
+<li>导航型查询（明确目标）：平均beam size 3-5</li>
+<li>信息型查询（探索性）：平均beam size 8-15</li>
+<li>事务型查询（多步骤）：平均beam size 10-20</li>
+</ul>
+<h2 id="_2">前缀树加速</h2>
+<p>前缀树（Trie）不仅用于约束解码，还是加速生成式检索的核心数据结构。本节深入探讨如何利用Trie优化推理效率。</p>
+<h3 id="trie">Trie数据结构的检索优化</h3>
+<p>标准Trie可以通过以下优化提升检索性能：</p>
+<p><strong>压缩路径</strong>：单子节点路径压缩成边，减少遍历步骤：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">标准</span><span class="n">Trie</span><span class="o">:</span><span class="w">           </span><span class="err">压缩</span><span class="n">Trie</span><span class="o">:</span>
+<span class="w">    </span><span class="mi">1</span><span class="w">                   </span><span class="mi">1</span>
+<span class="w">    </span><span class="o">|</span><span class="w">                   </span><span class="o">|</span>
+<span class="w">    </span><span class="mi">2</span><span class="w">                  </span><span class="mi">23</span>
+<span class="w">    </span><span class="o">|</span><span class="w">                  </span><span class="o">/</span><span class="w"> </span><span class="o">\</span>
+<span class="w">    </span><span class="mi">3</span><span class="w">                 </span><span class="mi">4</span><span class="w">   </span><span class="mi">7</span>
+<span class="w">   </span><span class="o">/</span><span class="w"> </span><span class="o">\</span>
+<span class="w">  </span><span class="mi">4</span><span class="w">   </span><span class="mi">7</span>
+</code></pre></div>
+
+<p><strong>位图索引</strong>：使用位图加速子节点查找：</p>
+<div class="codehilite"><pre><span></span><code>struct TrieNode {
+    uint256 child_bitmap;  // 256位，标记存在的子节点
+    Node* children[popcnt(child_bitmap)];  // 只存储实际子节点
+}
+
+查找复杂度: O(1) with SIMD popcnt
+</code></pre></div>
+
+<p><strong>缓存友好布局</strong>：将热点路径的节点在内存中连续存储：</p>
+<div class="codehilite"><pre><span></span><code><span class="nl">内存布局</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">root</span><span class="o">][</span><span class="n">高频子树1</span><span class="o">][</span><span class="n">高频子树2</span><span class="o">]</span><span class="p">...</span><span class="o">[</span><span class="n">低频节点</span><span class="o">]</span>
+<span class="n">Cache</span><span class="w"> </span><span class="n">line利用率提升40</span><span class="o">-</span><span class="mi">60</span><span class="o">%</span>
+</code></pre></div>
+
+<h3 id="_3">动态剪枝策略</h3>
+<p>实时剪枝可以大幅减少搜索空间：</p>
+<p><strong>概率剪枝</strong>：当累积概率低于阈值时停止扩展：</p>
+<div class="codehilite"><pre><span></span><code>prune_threshold = max_score - δ
+if current_score &lt; prune_threshold:
+    停止该分支探索
+</code></pre></div>
+
+<p><strong>Top-k剪枝</strong>：只保留每层概率最高的k个节点：</p>
+<div class="codehilite"><pre><span></span><code>Layer 1: 保留top-100节点
+Layer 2: 保留top-50节点  
+Layer 3: 保留top-20节点
+...逐层递减
+</code></pre></div>
+
+<p><strong>自适应剪枝</strong>：根据查询复杂度动态调整：</p>
+<div class="codehilite"><pre><span></span><code>查询长度 &lt; 5: aggressive_pruning
+查询长度 5-10: moderate_pruning  
+查询长度 &gt; 10: conservative_pruning
+</code></pre></div>
+
+<h3 id="_4">批处理与并行化</h3>
+<p>批处理和并行化是提升生成式检索吞吐量的关键技术。通过充分利用现代硬件的并行能力，可以实现数量级的性能提升。</p>
+<p><strong>SIMD并行前缀匹配</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// AVX2实现的8路并行前缀匹配</span>
+<span class="n">__m256i</span><span class="w"> </span><span class="n">query_vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_mm256_loadu_si256</span><span class="p">(</span><span class="n">query</span><span class="p">);</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_docs</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">__m256i</span><span class="w"> </span><span class="n">doc_vecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_mm256_loadu_si256</span><span class="p">(</span><span class="o">&amp;</span><span class="n">docs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">__m256i</span><span class="w"> </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_mm256_cmpeq_epi32</span><span class="p">(</span><span class="n">query_vec</span><span class="p">,</span><span class="w"> </span><span class="n">doc_vecs</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_mm256_movemask_epi8</span><span class="p">(</span><span class="n">match</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 找到匹配，提取具体位置</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__builtin_ctz</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">        </span><span class="n">results</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">pos</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// AVX-512进一步提升到16路并行</span>
+<span class="n">__m512i</span><span class="w"> </span><span class="n">query_vec_512</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_mm512_loadu_si512</span><span class="p">(</span><span class="n">query</span><span class="p">);</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_docs</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">16</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">__m512i</span><span class="w"> </span><span class="n">doc_vecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_mm512_loadu_si512</span><span class="p">(</span><span class="o">&amp;</span><span class="n">docs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">__mmask16</span><span class="w"> </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_mm512_cmpeq_epi32_mask</span><span class="p">(</span><span class="n">query_vec_512</span><span class="p">,</span><span class="w"> </span><span class="n">doc_vecs</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">match</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">process_matches</span><span class="p">(</span><span class="n">match</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GPU加速Trie遍历</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 优化的GPU Trie遍历，使用共享内存缓存热点节点</span>
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">trie_search_optimized</span><span class="p">(</span><span class="n">TrieNode</span><span class="o">*</span><span class="w"> </span><span class="n">nodes</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">queries</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                                      </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">results</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_queries</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">extern</span><span class="w"> </span><span class="kt">__shared__</span><span class="w"> </span><span class="n">TrieNode</span><span class="w"> </span><span class="n">shared_cache</span><span class="p">[];</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 协作加载热点节点到共享内存</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">CACHE_SIZE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">shared_cache</span><span class="p">[</span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nodes</span><span class="p">[</span><span class="n">hot_node_indices</span><span class="p">[</span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nf">__syncthreads</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">tid</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_queries</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queries</span><span class="p">[</span><span class="n">tid</span><span class="p">];</span>
+<span class="w">        </span><span class="n">TrieNode</span><span class="o">*</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w">  </span><span class="c1">// root</span>
+
+<span class="w">        </span><span class="k">while</span><span class="p">(</span><span class="n">current</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">child_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1">// 先检查共享内存缓存</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">cache_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">find_in_cache</span><span class="p">(</span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="n">child_idx</span><span class="p">);</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">cache_idx</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">shared_cache</span><span class="p">[</span><span class="n">cache_idx</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// 从全局内存读取</span>
+<span class="w">                </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current</span><span class="o">-&gt;</span><span class="n">children</span><span class="p">[</span><span class="n">child_idx</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">query</span><span class="w"> </span><span class="o">&gt;&gt;=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">results</span><span class="p">[</span><span class="n">tid</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">current</span><span class="o">-&gt;</span><span class="n">doc_id</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Warp级别的协作搜索</span>
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">warp_collaborative_search</span><span class="p">(</span><span class="n">TrieNode</span><span class="o">*</span><span class="w"> </span><span class="n">nodes</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">queries</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                                         </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">results</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">warp_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lane_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">query_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="o">/</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">warp_id</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">query_id</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_queries</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queries</span><span class="p">[</span><span class="n">query_id</span><span class="p">];</span>
+<span class="w">        </span><span class="n">TrieNode</span><span class="o">*</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+<span class="w">        </span><span class="c1">// Warp内线程协作遍历不同分支</span>
+<span class="w">        </span><span class="k">while</span><span class="p">(</span><span class="n">current</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">num_children</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current</span><span class="o">-&gt;</span><span class="n">num_children</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">child_per_thread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">num_children</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">31</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span>
+
+<span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">child_per_thread</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">child_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lane_id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span>
+<span class="w">                </span><span class="k">if</span><span class="p">(</span><span class="n">child_idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_children</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="c1">// 每个线程探索一个子节点</span>
+<span class="w">                    </span><span class="n">explore_branch</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">children</span><span class="p">[</span><span class="n">child_idx</span><span class="p">]);</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="c1">// Warp投票选择最优分支</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">best_branch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">warp_vote_best_branch</span><span class="p">();</span>
+<span class="w">            </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__shfl_sync</span><span class="p">(</span><span class="mh">0xffffffff</span><span class="p">,</span><span class="w"> </span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="n">best_branch</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>多级并行策略</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">MultiLevelParallelizer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpu_executor</span> <span class="o">=</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_available</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">process_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">):</span>
+        <span class="c1"># Level 1: 按查询复杂度分组</span>
+        <span class="n">simple_queries</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">]</span>
+        <span class="n">complex_queries</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">]</span>
+
+        <span class="c1"># Level 2: 简单查询CPU并行，复杂查询GPU处理</span>
+        <span class="n">futures</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># CPU处理简单查询</span>
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">(</span><span class="n">simple_queries</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span>
+            <span class="n">future</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpu_executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cpu_batch_search</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+            <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future</span><span class="p">)</span>
+
+        <span class="c1"># GPU处理复杂查询</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_available</span> <span class="ow">and</span> <span class="n">complex_queries</span><span class="p">:</span>
+            <span class="n">gpu_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_batch_search</span><span class="p">(</span><span class="n">complex_queries</span><span class="p">)</span>
+
+        <span class="c1"># 收集结果</span>
+        <span class="n">cpu_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">futures</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">merge_results</span><span class="p">(</span><span class="n">cpu_results</span><span class="p">,</span> <span class="n">gpu_results</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="_5">内存与速度权衡</h3>
+<p>不同的Trie变体在内存和速度间有不同权衡：</p>
+<p>| 数据结构 | 内存占用 | 查询速度 | 适用场景 |</p>
+<table>
+<thead>
+<tr>
+<th>数据结构</th>
+<th>内存占用</th>
+<th>查询速度</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>标准Trie</td>
+<td>O(N×M)</td>
+<td>O(M)</td>
+<td>小规模精确匹配</td>
+</tr>
+<tr>
+<td>压缩Trie</td>
+<td>O(N)</td>
+<td>O(M)</td>
+<td>中等规模</td>
+</tr>
+<tr>
+<td>HAT-Trie</td>
+<td>O(N/B)</td>
+<td>O(M×logB)</td>
+<td>大规模缓存优化</td>
+</tr>
+<tr>
+<td>Succinct Trie</td>
+<td>O(N×H(Σ))</td>
+<td>O(M×logΣ)</td>
+<td>超大规模</td>
+</tr>
+</tbody>
+</table>
+<p>其中N是文档数，M是平均ID长度，B是桶大小，Σ是字符集大小。</p>
+<h2 id="_6">高级话题：非自回归解码在检索中的应用</h2>
+<p>传统的自回归（AR）解码逐个生成token，推理延迟与序列长度成正比。非自回归（NAR）模型通过并行生成所有token来突破这一限制，为生成式检索带来显著的速度提升。</p>
+<h3 id="nar">NAR模型基础</h3>
+<p>非自回归模型的核心思想是打破token间的顺序依赖：</p>
+<p><strong>自回归生成</strong>：
+$$p_{AR}(y|x) = \prod_{t=1}^T p(y_t|y_{&lt;t}, x)$$
+<strong>非自回归生成</strong>：
+$$p_{NAR}(y|x) = p(T|x) \prod_{t=1}^T p(y_t|x)$$</p>
+<p>其中T是序列长度，可以通过长度预测器获得。</p>
+<h3 id="_7">并行解码策略</h3>
+<p>NAR在生成式检索中的实现需要特殊设计：</p>
+<p><strong>1. 长度预测</strong>：</p>
+<div class="codehilite"><pre><span></span><code>length_logits = length_predictor(query_encoding)
+predicted_lengths = top_k(softmax(length_logits), k=3)
+<span class="gh">#</span> 同时尝试多个长度，后处理选择最佳
+</code></pre></div>
+
+<p><strong>2. 并行位置生成</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> 所有位置同时预测
+position_embeddings = get_position_embeddings(max_length)
+decoder_input = query_encoding + position_embeddings
+all_logits = decoder(decoder_input)  # [batch, max_length, vocab]
+</code></pre></div>
+
+<p><strong>3. CTC解码</strong>（处理重复和空白）：</p>
+<div class="codehilite"><pre><span></span><code>原始输出: [1, 1, ε, 2, 2, 3, ε, 3]
+CTC合并: [1, 2, 3]  # ε表示空白，重复合并
+</code></pre></div>
+
+<h3 id="_8">迭代精化机制</h3>
+<p>NAR的一次生成质量通常不如AR，迭代精化可以改善。精化的核心思想是通过多轮迭代逐步提高生成质量，每轮聚焦于修正低置信度的部分。</p>
+<p><strong>Mask-Predict策略</strong>：</p>
+<div class="codehilite"><pre><span></span><code>Step 1: 初始并行生成 y^(0)
+Step 2-N: 迭代精化
+
+    <span class="k">-</span> 计算每个位置的置信度: conf_t = p(y_t^(i-1)|x)
+    <span class="k">-</span> Mask低置信位置: mask = (conf &lt; threshold)
+    <span class="k">-</span> 重新预测masked位置: y^(i) = predict(y^(i-1), mask, x)
+</code></pre></div>
+
+<p>这种策略的关键在于置信度估计的准确性。实践中常用的置信度度量包括：</p>
+<ul>
+<li><strong>Token概率</strong>：直接使用softmax输出的最大概率</li>
+<li><strong>熵值</strong>：$H(p_t) = -\sum_v p_t(v) \log p_t(v)$</li>
+<li><strong>概率差</strong>：top-1和top-2概率的差值</li>
+<li><strong>集成置信度</strong>：多个模型预测的一致性</li>
+</ul>
+<p><strong>置信度驱动的精化</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">iterative_refine</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">max_iters</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">initial_predict</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">refinement_history</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iters</span><span class="p">):</span>
+        <span class="n">confidences</span> <span class="o">=</span> <span class="n">get_confidences</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="n">avg_conf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">confidences</span><span class="p">)</span>
+        <span class="n">refinement_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">avg_conf</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="n">confidences</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+            <span class="k">break</span>
+
+        <span class="c1"># 自适应阈值：随迭代次数增加而放松</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">confidences</span> <span class="o">&lt;</span> <span class="n">adaptive_threshold</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="c1"># 只精化最需要改进的位置</span>
+        <span class="n">num_to_refine</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">*</span> <span class="n">decay_rate</span> <span class="o">**</span> <span class="n">i</span><span class="p">))</span>
+        <span class="n">positions_to_refine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">confidences</span><span class="p">)[:</span><span class="n">num_to_refine</span><span class="p">]</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">refine</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">positions_to_refine</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+
+        <span class="c1"># 早停检测</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">avg_conf</span> <span class="o">-</span> <span class="n">refinement_history</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">:</span>
+            <span class="k">break</span>  <span class="c1"># 置信度不再显著提升</span>
+
+    <span class="k">return</span> <span class="n">y</span>
+</code></pre></div>
+
+<p><strong>CMLM（Conditional Masked Language Model）精化</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CMLMRefiner</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">mask_ratio_schedule</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_schedule</span> <span class="o">=</span> <span class="n">mask_ratio_schedule</span>  <span class="c1"># [0.5, 0.3, 0.1]</span>
+
+    <span class="k">def</span> <span class="nf">refine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">initial_output</span><span class="p">,</span> <span class="n">num_iters</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">initial_output</span>
+
+        <span class="k">for</span> <span class="n">iter_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iters</span><span class="p">):</span>
+            <span class="n">mask_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_schedule</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">iter_idx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_schedule</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+
+            <span class="c1"># 基于置信度的自适应masking</span>
+            <span class="n">token_probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_token_probabilities</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+            <span class="n">num_mask</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">current</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask_ratio</span><span class="p">)</span>
+
+            <span class="c1"># 优先mask低置信度token</span>
+            <span class="n">mask_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">token_probs</span><span class="p">)[:</span><span class="n">num_mask</span><span class="p">]</span>
+
+            <span class="c1"># 条件生成</span>
+            <span class="n">masked_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_mask</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">mask_positions</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_masked</span><span class="p">(</span><span class="n">masked_input</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+
+            <span class="c1"># 更新masked位置</span>
+            <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">mask_positions</span><span class="p">:</span>
+                <span class="n">current</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">current</span>
+</code></pre></div>
+
+<h3 id="narar">NAR与AR的混合架构</h3>
+<p>实践中，混合架构往往能取得最佳效果。关键在于如何智能地结合两种范式的优势：AR的高质量生成和NAR的高效推理。</p>
+<p><strong>浅层AR + 深层NAR</strong>：</p>
+<div class="codehilite"><pre><span></span><code>前缀生成(AR): [类别][子类]  # 2-3步，确定大方向
+后缀生成(NAR): [文档编号]    # 并行生成剩余部分
+
+优势分析：
+
+<span class="k">-</span> 前缀的准确性对最终结果影响大，使用AR保证质量
+<span class="k">-</span> 后缀在前缀确定后选择空间小，NAR足够准确
+<span class="k">-</span> 总延迟 = AR_steps × t_ar + t_nar ≈ 3×5ms + 10ms = 25ms
+</code></pre></div>
+
+<p><strong>置信度切换</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">AdaptiveDecoder</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ar_model</span><span class="p">,</span> <span class="n">nar_model</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ar_model</span> <span class="o">=</span> <span class="n">ar_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nar_model</span> <span class="o">=</span> <span class="n">nar_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">complexity_estimator</span> <span class="o">=</span> <span class="n">QueryComplexityEstimator</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="n">complexity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">complexity_estimator</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="c1"># 多维度决策</span>
+        <span class="n">factors</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;query_length&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">()),</span>
+            <span class="s1">&#39;vocabulary_entropy&#39;</span><span class="p">:</span> <span class="n">compute_vocab_entropy</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
+            <span class="s1">&#39;expected_results&#39;</span><span class="p">:</span> <span class="n">estimate_result_count</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
+            <span class="s1">&#39;latency_budget&#39;</span><span class="p">:</span> <span class="n">get_current_latency_budget</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_use_nar</span><span class="p">(</span><span class="n">complexity</span><span class="p">,</span> <span class="n">factors</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nar_decode_with_fallback</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ar_decode_with_early_stop</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">nar_decode_with_fallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="c1"># NAR生成</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nar_model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">confidences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nar_model</span><span class="o">.</span><span class="n">get_confidences</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="c1"># 低置信度时回退到AR</span>
+        <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="n">confidences</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ar_model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results</span>
+</code></pre></div>
+
+<p><strong>级联架构</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CascadeRetrieval</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nar_coarse</span> <span class="o">=</span> <span class="n">FastNARModel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ar_fine</span> <span class="o">=</span> <span class="n">AccurateARModel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reranker</span> <span class="o">=</span> <span class="n">LearnedReranker</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="c1"># Stage 1: NAR快速召回</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">coarse_candidates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nar_coarse</span><span class="o">.</span><span class="n">generate_batch</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span> 
+            <span class="n">num_candidates</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">beam_size</span><span class="o">=</span><span class="mi">5</span>  <span class="c1"># NAR使用小beam</span>
+        <span class="p">)</span>
+        <span class="n">coarse_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t1</span>  <span class="c1"># ~10ms</span>
+
+        <span class="c1"># Stage 2: AR精细重排</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">refined_candidates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">coarse_candidates</span><span class="p">[:</span><span class="mi">20</span><span class="p">]:</span>  <span class="c1"># 只精排top-20</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ar_fine</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">candidate</span><span class="p">)</span>
+            <span class="n">refined_candidates</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">candidate</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+
+        <span class="n">refined_candidates</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">rerank_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t2</span>  <span class="c1"># ~20ms</span>
+
+        <span class="c1"># Stage 3: 学习的重排器（可选）</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reranker</span><span class="p">:</span>
+            <span class="n">final_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reranker</span><span class="o">.</span><span class="n">rerank</span><span class="p">(</span>
+                <span class="n">query</span><span class="p">,</span> 
+                <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">refined_candidates</span><span class="p">[:</span><span class="n">top_k</span><span class="p">]]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">final_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">refined_candidates</span><span class="p">[:</span><span class="n">top_k</span><span class="p">]]</span>
+
+        <span class="n">total_time</span> <span class="o">=</span> <span class="n">coarse_time</span> <span class="o">+</span> <span class="n">rerank_time</span>
+        <span class="k">return</span> <span class="n">final_results</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;latency&#39;</span><span class="p">:</span> <span class="n">total_time</span><span class="p">}</span>
+</code></pre></div>
+
+<p><strong>动态架构选择</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">DynamicArchitectureSelector</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;pure_ar&#39;</span><span class="p">:</span> <span class="n">PureARModel</span><span class="p">(),</span>
+            <span class="s1">&#39;pure_nar&#39;</span><span class="p">:</span> <span class="n">PureNARModel</span><span class="p">(),</span>
+            <span class="s1">&#39;hybrid_shallow&#39;</span><span class="p">:</span> <span class="n">ShallowARDeepNAR</span><span class="p">(),</span>
+            <span class="s1">&#39;hybrid_cascade&#39;</span><span class="p">:</span> <span class="n">CascadeModel</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">performance_tracker</span> <span class="o">=</span> <span class="n">PerformanceTracker</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">select_architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="c1"># 基于历史性能数据选择</span>
+        <span class="n">query_features</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">predicted_performance</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># 预测每种架构的性能</span>
+            <span class="n">predicted_performance</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">performance_tracker</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">features</span><span class="o">=</span><span class="n">query_features</span><span class="p">,</span>
+                <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;latency&#39;</span><span class="p">,</span> <span class="s1">&#39;accuracy&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 多目标优化：延迟vs准确率</span>
+        <span class="n">best_architecture</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pareto_optimal_choice</span><span class="p">(</span>
+            <span class="n">predicted_performance</span><span class="p">,</span>
+            <span class="n">latency_weight</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;latency_importance&#39;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+            <span class="n">accuracy_weight</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;accuracy_importance&#39;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">best_architecture</span><span class="p">]</span>
+</code></pre></div>
+
+<h3 id="_9">性能对比与优化指南</h3>
+<p>不同解码策略在各种维度上的详细对比：</p>
+<p>| 指标 | 自回归(AR) | 非自回归(NAR) | 混合架构 |
+| 推理延迟 | O(T)，~100ms | O(1)，~20ms | O(k), k&lt;&lt;T，~30ms |
+| 准确率@1 | 95% | 88% | 93% |
+| 准确率@10 | 98% | 94% | 97% |
+| 吞吐量 | 100 QPS | 500 QPS | 300 QPS |
+| 模型大小 | 1× | 1.2× | 1.5× |
+| GPU内存占用 | 基准 | +20%（并行化） | +30%（双模型） |
+| 训练复杂度 | 标准 | 2×（需要特殊损失） | 2.5×（联合训练） |
+| 部署复杂度 | 简单 | 中等 | 复杂 |</p>
+<p><strong>细粒度性能分析</strong>：</p>
+<ol>
+<li><strong>不同查询长度的表现</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>查询长度  | AR延迟 | NAR延迟 | 混合延迟 | 最优选择
+---------|--------|---------|----------|----------
+1-3词    | 30ms   | 15ms    | 20ms     | NAR
+4-7词    | 60ms   | 18ms    | 25ms     | 混合
+8-15词   | 120ms  | 25ms    | 35ms     | 混合
+&gt;15词    | 200ms+ | 35ms    | 50ms     | NAR(精度容忍时)
+</code></pre></div>
+
+<ol start="2">
+<li><strong>不同文档集规模的扩展性</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>文档数量   | AR性能   | NAR性能  | 推荐方案
+----------|----------|----------|------------
+&lt;10K      | 优秀     | 良好     | AR（质量优先）
+10K-100K  | 良好     | 优秀     | 混合
+100K-1M   | 一般     | 优秀     | NAR+精排
+&gt;1M       | 差       | 良好     | 分层NAR
+</code></pre></div>
+
+<ol start="3">
+<li><strong>硬件配置影响</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">hardware_optimized_selection</span><span class="p">(</span><span class="n">hardware_profile</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">hardware_profile</span><span class="p">[</span><span class="s1">&#39;gpu_memory&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>  <span class="c1"># GB</span>
+        <span class="k">return</span> <span class="s1">&#39;quantized_nar&#39;</span>  <span class="c1"># 量化的NAR模型</span>
+    <span class="k">elif</span> <span class="n">hardware_profile</span><span class="p">[</span><span class="s1">&#39;gpu_compute&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">7.0</span><span class="p">:</span>  <span class="c1"># 计算能力</span>
+        <span class="k">return</span> <span class="s1">&#39;cpu_ar_gpu_nar&#39;</span>  <span class="c1"># CPU运行AR，GPU运行NAR</span>
+    <span class="k">elif</span> <span class="n">hardware_profile</span><span class="p">[</span><span class="s1">&#39;num_gpus&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;pipeline_hybrid&#39;</span>  <span class="c1"># 流水线并行的混合模型</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;standard_hybrid&#39;</span>
+</code></pre></div>
+
+<h2 id="_10">工业案例：字节跳动抖音搜索的实时推理优化</h2>
+<p>字节跳动在抖音搜索中部署生成式检索面临独特挑战：亿级短视频库、毫秒级延迟要求、每秒数万查询。本节深入分析其优化策略。</p>
+<h3 id="_11">系统架构概览</h3>
+<p>抖音搜索采用三层架构：</p>
+<div class="codehilite"><pre><span></span><code>用户查询
+    ↓
+[召回层] 生成式检索 + 传统倒排
+    ↓ 1000候选
+[粗排层] 轻量级打分
+    ↓ 100候选  
+[精排层] 复杂模型打分
+    ↓ 10结果
+展示给用户
+</code></pre></div>
+
+<p>生成式检索在召回层承担主要职责，需要在50ms内返回结果。</p>
+<h3 id="_12">模型优化策略</h3>
+<p><strong>1. 知识蒸馏</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">教师模型</span><span class="o">:</span><span class="w"> </span><span class="mi">24</span><span class="err">层</span><span class="n">BERT</span><span class="o">-</span><span class="n">large</span><span class="w"> </span><span class="o">(</span><span class="mi">340</span><span class="n">M参数</span><span class="o">)</span>
+<span class="err">学生模型</span><span class="o">:</span><span class="w"> </span><span class="mi">6</span><span class="err">层</span><span class="n">DistilBERT</span><span class="w"> </span><span class="o">(</span><span class="mi">66</span><span class="n">M参数</span><span class="o">)</span>
+
+<span class="err">蒸馏损失</span><span class="o">:</span>
+<span class="n">L</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">α·</span><span class="n">L_hard</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">(</span><span class="mi">1</span><span class="o">-</span><span class="err">α</span><span class="o">)</span><span class="err">·</span><span class="n">L_soft</span>
+<span class="n">L_soft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KL</span><span class="o">(</span><span class="n">student_logits</span><span class="sr">/T, teacher_logits/</span><span class="n">T</span><span class="o">)</span>
+</code></pre></div>
+
+<p><strong>2. 混合精度推理</strong>：
+- Embedding层: FP16
+- Attention计算: INT8
+- 最终logits: FP32
+- 加速比: 2.3×，准确率损失 &lt; 0.5%</p>
+<p><strong>3. 动态批处理</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">DynamicBatcher</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">max_wait</span><span class="o">=</span><span class="mi">10</span><span class="n">ms</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending_queries</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending_queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending_queries</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">max_batch</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_batch</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">time_since_first</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">max_wait</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_batch</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="_13">分布式部署方案</h3>
+<p><strong>模型分片</strong>：</p>
+<div class="codehilite"><pre><span></span><code>Model Parallel:
+
+<span class="k">-</span> Embedding Table: 4个节点分片
+<span class="k">-</span> Transformer Layers: 2个节点pipeline
+<span class="k">-</span> 总延迟: max(shard_latencies) + communication
+
+Data Parallel:
+
+<span class="k">-</span> 8个副本处理不同batch
+<span class="k">-</span> Load Balancer: 一致性哈希
+</code></pre></div>
+
+<p><strong>缓存策略</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">三级缓存</span><span class="o">:</span>
+<span class="n">L1</span><span class="o">:</span><span class="w"> </span><span class="err">进程内</span><span class="n">LRU</span><span class="w"> </span><span class="o">(</span><span class="err">命中率</span><span class="o">~</span><span class="mi">30</span><span class="o">%)</span>
+<span class="n">L2</span><span class="o">:</span><span class="w"> </span><span class="n">Redis集群</span><span class="w"> </span><span class="o">(</span><span class="err">命中率</span><span class="o">~</span><span class="mi">50</span><span class="o">%)</span><span class="w">  </span>
+<span class="n">L3</span><span class="o">:</span><span class="w"> </span><span class="n">CDN边缘节点</span><span class="w"> </span><span class="o">(</span><span class="err">命中率</span><span class="o">~</span><span class="mi">70</span><span class="o">%)</span>
+
+<span class="err">缓存</span><span class="n">key设计</span><span class="o">:</span>
+<span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hash</span><span class="o">(</span><span class="n">query_normalized</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">time_bucket</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">user_city</span><span class="o">)</span>
+</code></pre></div>
+
+<h3 id="_14">在线学习与更新</h3>
+<p><strong>增量索引</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">每小时更新</span><span class="o">:</span>
+
+<span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="err">收集新视频</span><span class="n">ID</span>
+<span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="err">生成临时</span><span class="n">Trie分支</span>
+<span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="err">无锁合并到主</span><span class="n">Trie</span>
+<span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="err">原子切换指针</span>
+
+<span class="err">热更新不影响服务，延迟增加</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="n">ms</span>
+</code></pre></div>
+
+<p><strong>查询自适应</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">adaptive_decode</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">stats</span><span class="p">):</span>
+    <span class="c1"># 根据历史统计选择策略</span>
+    <span class="k">if</span> <span class="n">stats</span><span class="o">.</span><span class="n">avg_results</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">aggressive_beam_search</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">stats</span><span class="o">.</span><span class="n">click_entropy</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diverse_beam_search</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">standard_decode</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="_15">性能指标</h3>
+<p>部署后的关键指标：</p>
+<p>| 指标 | 优化前 | 优化后 | 提升 |</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>优化前</th>
+<th>优化后</th>
+<th>提升</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P50延迟</td>
+<td>120ms</td>
+<td>45ms</td>
+<td>62.5%</td>
+</tr>
+<tr>
+<td>P99延迟</td>
+<td>500ms</td>
+<td>150ms</td>
+<td>70%</td>
+</tr>
+<tr>
+<td>QPS容量</td>
+<td>10K</td>
+<td>50K</td>
+<td>5×</td>
+</tr>
+<tr>
+<td>召回率@100</td>
+<td>75%</td>
+<td>82%</td>
+<td>+7pp</td>
+</tr>
+<tr>
+<td>硬件成本</td>
+<td>100台</td>
+<td>40台</td>
+<td>60%减少</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_16">经验教训</h3>
+<ol>
+<li><strong>预计算的重要性</strong>：热门查询的结果预计算，覆盖30%流量</li>
+<li><strong>降级策略必要性</strong>：高峰期自动切换到更快但略less accurate的模型</li>
+<li><strong>监控粒度</strong>：不仅监控整体延迟，还要监控每个解码步骤</li>
+<li><strong>A/B测试框架</strong>：支持多版本模型并行serving，实时比较</li>
+<li><strong>缓存设计</strong>：多级缓存显著降低平均延迟，但需要考虑一致性</li>
+<li><strong>批处理权衡</strong>：动态批处理提升吞吐量但增加单个请求延迟</li>
+</ol>
+<h2 id="_17">本章小结</h2>
+<p>本章深入探讨了生成式检索中的解码策略与推理优化技术。我们从约束解码的基础概念出发，详细分析了如何通过Trie等数据结构实现高效的文档ID生成约束。在Beam Search部分，我们不仅回顾了标准算法，还介绍了针对检索任务优化的多种变体，包括多样性增强、长度归一化和自适应beam size等技术。</p>
+<p>前缀树加速章节展示了如何通过数据结构优化、动态剪枝和硬件加速来提升推理效率。特别是SIMD和GPU并行化技术，能够带来数量级的性能提升。在高级话题部分，我们探讨了非自回归解码这一前沿方向，包括并行生成、迭代精化和混合架构等创新方法。</p>
+<p>通过字节跳动抖音搜索的工业案例，我们看到了这些技术在实际大规模系统中的应用。关键优化包括模型压缩、动态批处理、分布式部署和多级缓存等，这些技术的综合应用使得系统能够在毫秒级延迟内处理亿级视频库的检索请求。</p>
+<p><strong>核心要点总结</strong>：</p>
+<ul>
+<li>约束解码通过限制生成空间确保输出有效性，是生成式检索的基础</li>
+<li>Beam Search的各种变体在质量-效率权衡中提供了丰富的选择</li>
+<li>数据结构和算法优化（如Trie、剪枝）对性能至关重要</li>
+<li>非自回归解码通过并行化突破了传统的延迟瓶颈</li>
+<li>混合架构往往能在实践中取得最佳的综合效果</li>
+<li>工业部署需要系统性的优化，包括模型、算法和工程多个层面</li>
+</ul>
+<h2 id="_18">练习题</h2>
+<h3 id="_19">基础题</h3>
+<p><strong>习题6.1</strong>：解释硬约束和软约束在生成式检索中的区别，并给出各自的适用场景。</p>
+<details markdown="1">
+<summary>提示</summary>
+<p>考虑约束的强制性、实现复杂度和对生成质量的影响。
+</details></p>
+<details>
+<summary>答案</summary>
+<p>硬约束完全禁止无效token的生成，通过掩码将其概率设为0，保证100%的有效性但可能过于严格；软约束通过调整概率分布引导生成，允许一定的灵活性。硬约束适用于文档ID必须精确匹配的场景，软约束适用于需要探索性和容错性的场景，如模糊匹配或近似检索。</p>
+</details>
+<p><strong>习题6.2</strong>：给定一个包含1000个文档的集合，文档ID采用3层层次化设计（10个类别，每类10个子类，每子类10个文档），计算使用层次化约束相比扁平化搜索的计算复杂度降低比例。</p>
+<details>
+<summary>提示</summary>
+<p>分别计算每种方法在每个解码步骤需要考虑的选项数量。</p>
+</details>
+<details>
+<summary>答案</summary>
+<p>扁平化搜索：每步需要从1000个选项中选择。
+层次化搜索：第1步10个选项（类别），第2步10个选项（子类），第3步10个选项（文档）。
+总计算量比较：扁平化需要O(1000×L)，层次化需要O(10+10+10)=O(30)。
+复杂度降低比例：1000L/30 ≈ 33L倍，其中L是平均序列长度。</p>
+</details>
+<p><strong>习题6.3</strong>：实现一个简单的Diverse Beam Search算法，要求支持基于编辑距离的多样性惩罚。</p>
+<details>
+<summary>提示</summary>
+<p>使用动态规划计算编辑距离，在beam扩展时加入多样性惩罚项。</p>
+</details>
+<details>
+<summary>答案</summary>
+<p>核心思路：将beam分组，每组独立搜索，但后续组在评分时减去与前面组的相似度惩罚。相似度用编辑距离的倒数衡量。具体实现包括：1）维护多个beam组；2）计算新候选与已有结果的最小编辑距离；3）根据距离调整候选分数；4）每组选择top-k候选。</p>
+</details>
+<h3 id="_20">挑战题</h3>
+<p><strong>习题6.4</strong>：设计一个自适应的解码策略选择器，能够根据查询特征（长度、复杂度、历史点击率等）自动选择最优的解码方法（AR、NAR或混合）。</p>
+<details>
+<summary>提示</summary>
+<p>考虑使用机器学习方法预测每种策略的预期性能，并进行多目标优化。</p>
+</details>
+<details>
+<summary>答案</summary>
+<p>设计包括：1）特征提取：查询长度、词频统计、语义复杂度、用户历史偏好；2）性能预测模型：使用轻量级分类器预测每种策略的延迟和准确率；3）决策逻辑：基于延迟预算和质量要求的帕累托最优选择；4）在线学习：收集实际性能反馈，持续优化预测模型。关键是平衡探索与利用，可以使用contextual bandit算法。</p>
+</details>
+<p><strong>习题6.5</strong>：分析并比较Mask-Predict和CMLM两种迭代精化策略的优缺点，并提出一种结合两者优势的新方法。</p>
+<details>
+<summary>提示</summary>
+<p>考虑置信度估计的准确性、迭代收敛速度和计算效率。</p>
+</details>
+<details>
+<summary>答案</summary>
+<p>Mask-Predict优势：简单直接，易于实现；缺点：可能陷入局部最优。CMLM优势：探索空间更大，质量上限高；缺点：收敛慢，计算开销大。
+新方法：渐进式混合策略，初期使用CMLM的高mask率进行全局探索，后期切换到Mask-Predict的低mask率进行局部精化。关键创新：1）自适应mask率调度；2）基于改进速度的早停；3）关键位置保护机制，避免破坏已经高置信度的部分。</p>
+</details>
+<p><strong>习题6.6</strong>：针对动态更新的文档集合（每天新增/删除10%文档），设计一个增量式的Trie更新算法，要求不影响在线服务。</p>
+<details>
+<summary>提示</summary>
+<p>考虑版本控制、无锁数据结构和渐进式迁移策略。</p>
+</details>
+<details>
+<summary>答案</summary>
+<p>设计方案：1）双缓冲Trie结构，维护当前版本和下一版本；2）增量构建：新Trie基于旧Trie的差异更新，使用copy-on-write优化内存；3）无锁切换：使用原子指针操作，读请求始终访问稳定版本；4）渐进式GC：延迟回收旧版本，确保所有正在进行的查询完成；5）批量更新：累积变更，定期批量应用，减少切换开销。关键优化：热点路径预复制，减少写时复制的延迟尖峰。</p>
+</details>
+<p><strong>习题6.7</strong>：设计一个性能监控和自动调优系统，能够实时检测生成式检索系统的性能瓶颈并自动调整参数。</p>
+<details>
+<summary>提示</summary>
+<p>需要考虑多维度指标、异常检测和反馈控制。</p>
+</details>
+<details>
+<summary>答案</summary>
+<p>系统设计：
+1）监控指标：延迟分布（P50/P95/P99）、吞吐量、缓存命中率、beam利用率、GPU利用率；
+2）异常检测：使用滑动窗口检测指标突变，LSTM预测正常范围；
+3）瓶颈诊断：通过相关性分析确定主要瓶颈（计算、内存、网络）；
+4）自动调优：根据瓶颈类型触发相应优化：</p>
+<ul>
+<li>高延迟→减小beam size</li>
+<li>低GPU利用率→增加batch size</li>
+<li>内存压力→启用量化</li>
+<li>缓存失效→调整缓存策略
+5）安全机制：渐进式调整，设置guardrail防止剧烈变化，保留回滚能力。</li>
+</ul>
+</details>
+<p><strong>习题6.8</strong>：假设你需要将生成式检索部署到边缘设备（如手机），内存限制2GB，延迟要求&lt;100ms，设计一个完整的优化方案。</p>
+<details>
+<summary>提示</summary>
+<p>考虑模型压缩、计算优化和资源调度等多个方面。</p>
+</details>
+<details>
+<summary>答案</summary>
+<p>优化方案：
+1）模型压缩：</p>
+<ul>
+<li>8-bit量化，压缩4×</li>
+<li>知识蒸馏到6层小模型</li>
+<li>
+<p>权重共享和剪枝，进一步减少50%参数
+2）计算优化：</p>
+</li>
+<li>
+<p>使用ONNX Runtime Mobile或TensorFlow Lite</p>
+</li>
+<li>算子融合减少内存访问</li>
+<li>
+<p>缓存中间激活值的重计算策略
+3）索引优化：</p>
+</li>
+<li>
+<p>分层索引，只加载热门文档的完整索引</p>
+</li>
+<li>布隆过滤器快速排除</li>
+<li>
+<p>压缩Trie结构，使用succinct数据结构
+4）动态资源管理：</p>
+</li>
+<li>
+<p>根据电量和温度动态调整计算强度</p>
+</li>
+<li>后台预计算和缓存常见查询</li>
+<li>
+<p>与云端协同，复杂查询卸载到云端
+5）用户体验优化：</p>
+</li>
+<li>
+<p>渐进式结果返回</p>
+</li>
+<li>本地个性化微调
+预期效果：模型大小&lt;500MB，平均延迟&lt;80ms，准确率保持90%以上。</li>
+</ul>
+</details>
+<h2 id="_21">常见陷阱与错误</h2>
+<ol>
+<li>
+<p><strong>过度约束导致召回不足</strong>
+   - 错误：硬约束设置过严，合理的变体被排除
+   - 正确：使用软约束或设置合理的约束松弛度</p>
+</li>
+<li>
+<p><strong>Beam size选择不当</strong>
+   - 错误：一味增加beam size希望提高质量
+   - 正确：根据数据分析找到质量-效率的甜点，通常5-10足够</p>
+</li>
+<li>
+<p><strong>忽视缓存局部性</strong>
+   - 错误：Trie节点随机分布在内存中
+   - 正确：优化内存布局，热点路径连续存储</p>
+</li>
+<li>
+<p><strong>NAR训练不充分</strong>
+   - 错误：直接将AR模型改为NAR，期望相同性能
+   - 正确：NAR需要特殊的训练策略，如iterative refinement training</p>
+</li>
+<li>
+<p><strong>批处理大小固定</strong>
+   - 错误：使用固定的批处理大小，导致延迟波动大
+   - 正确：动态批处理，平衡延迟和吞吐量</p>
+</li>
+<li>
+<p><strong>忽略文档更新的一致性</strong>
+   - 错误：增量更新时出现短暂的不一致状态
+   - 正确：使用版本控制和原子切换保证一致性</p>
+</li>
+<li>
+<p><strong>过度优化局部指标</strong>
+   - 错误：只关注推理延迟，忽视端到端体验
+   - 正确：综合考虑延迟、准确率、资源消耗等多个维度</p>
+</li>
+<li>
+<p><strong>混合架构的复杂度失控</strong>
+   - 错误：盲目组合多种技术，系统变得难以维护
+   - 正确：incremental优化，每步都要验证收益</p>
+</li>
+</ol>
+<h2 id="_22">最佳实践检查清单</h2>
+<h3 id="_23">模型设计阶段</h3>
+<ul>
+<li>[ ] 文档ID设计是否便于约束和并行化？</li>
+<li>[ ] 是否评估了AR vs NAR vs 混合架构的权衡？</li>
+<li>[ ] 模型大小是否适合目标部署环境？</li>
+<li>[ ] 是否设计了合理的fallback机制？</li>
+</ul>
+<h3 id="_24">算法优化阶段</h3>
+<ul>
+<li>[ ] 是否实现了高效的约束解码机制？</li>
+<li>[ ] Beam search是否包含必要的优化（多样性、长度归一化等）？</li>
+<li>[ ] 是否利用了硬件加速（SIMD、GPU）？</li>
+<li>[ ] 剪枝策略是否经过充分调优？</li>
+</ul>
+<h3 id="_25">系统实现阶段</h3>
+<ul>
+<li>[ ] 数据结构选择是否考虑了缓存友好性？</li>
+<li>[ ] 是否实现了多级缓存策略？</li>
+<li>[ ] 批处理策略是否动态可调？</li>
+<li>[ ] 内存管理是否避免了碎片化？</li>
+</ul>
+<h3 id="_26">部署运维阶段</h3>
+<ul>
+<li>[ ] 是否有完善的性能监控指标？</li>
+<li>[ ] 是否支持在线A/B测试？</li>
+<li>[ ] 是否有自动降级和容错机制？</li>
+<li>[ ] 文档更新是否支持热更新？</li>
+</ul>
+<h3 id="_27">性能调优阶段</h3>
+<ul>
+<li>[ ] 是否profiling了主要瓶颈？</li>
+<li>[ ] 是否平衡了延迟、吞吐量和资源消耗？</li>
+<li>[ ] 是否针对不同查询类型优化？</li>
+<li>[ ] 是否考虑了峰值流量的处理？</li>
+</ul>
+<hr />
+<p><em>继续学习：<a href="chapter7.html">第7章：NCI与可扩展性</a> →</em></p>
+            </article>
+            
+            <nav class="page-nav"><a href="chapter5.html" class="nav-link prev">← 第5章：生成式检索的训练策略</a><a href="chapter7.html" class="nav-link next">第7章：NCI与可扩展性 →</a></nav>
+        </main>
+    </div>
+</body>
+</html>
