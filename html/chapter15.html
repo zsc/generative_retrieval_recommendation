@@ -235,6 +235,73 @@ $$\text{Total Latency} = \text{Encoding}_\text{time} + \text{Generation}_\text{t
 <li><strong>查询分布漂移</strong>：真实查询分布随时间变化，与测试集分布存在差异</li>
 <li><strong>用户交互模式</strong>：离线评估忽略了用户的浏览、点击、停留时间等信号</li>
 </ol>
+<p><strong>生成式检索特有的差距放大效应</strong>：</p>
+<p>生成式检索的记忆化特性使得在线-离线差距更加明显。模型在训练时"记住"了文档集合，但实际部署时面临的是动态变化的文档库：</p>
+<div class="codehilite"><pre><span></span><code>训练时：Model memorizes {d1, d2, ..., d10000}
+部署后Day 1：需要检索 {d1, d2, ..., d10000, d10001}  # 新增文档
+部署后Day 7：需要检索 {d1, d2, ..., d9998, d10001, ..., d10500}  # 删除+新增
+部署后Day 30：查询分布从&quot;技术类&quot;转向&quot;娱乐类&quot;  # 用户兴趣迁移
+</code></pre></div>
+
+<p><strong>协变量偏移（Covariate Shift）问题</strong>：</p>
+<p>离线测试集通常采样自历史数据，而在线环境的输入分布P(X)持续变化：
+$$P_{\text{train}}(X) \neq P_{\text{deploy}}(X)$$
+对于生成式检索，这种偏移体现在多个层面：</p>
+<ul>
+<li><strong>查询长度分布</strong>：移动端查询变短，语音查询变长</li>
+<li><strong>查询意图分布</strong>：季节性、节假日、热点事件影响</li>
+<li><strong>查询复杂度分布</strong>：用户学习使用高级查询语法</li>
+</ul>
+<p><strong>标注延迟与反馈稀疏性</strong>：</p>
+<div class="codehilite"><pre><span></span><code>用户查询 → 系统返回结果 → 用户浏览 → 点击/不点击
+    ↓                                      ↓
+T=0秒                                  T=5-30秒
+
+进一步行为：收藏/购买/分享
+    ↓
+T=分钟到天级别
+</code></pre></div>
+
+<p>离线评估使用的是完整标注数据，而在线系统只能获得部分隐式反馈，且存在显著延迟。</p>
+<h3 id="1514">15.1.4 生成幻觉的评估挑战</h3>
+<p>生成式检索独有的"幻觉"问题给评估带来新挑战：</p>
+<p><strong>幻觉类型分类</strong>：</p>
+<ol>
+<li><strong>完全幻觉</strong>：生成不存在的文档ID</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="n">Query</span><span class="p">:</span> <span class="s2">&quot;最新iPhone评测&quot;</span>
+<span class="n">Generated</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;doc_99999&quot;</span><span class="p">]</span>  <span class="c1"># 文档库最大ID是50000</span>
+</code></pre></div>
+
+<ol start="2">
+<li><strong>语义幻觉</strong>：生成存在但不相关的文档ID</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="n">Query</span><span class="p">:</span> <span class="s2">&quot;Python编程教程&quot;</span>  
+<span class="n">Generated</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;doc_123&quot;</span><span class="p">]</span>  <span class="c1"># doc_123是关于Java的</span>
+</code></pre></div>
+
+<ol start="3">
+<li><strong>组合幻觉</strong>：单个ID正确但组合不合理</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="n">Query</span><span class="p">:</span> <span class="s2">&quot;初学者编程入门&quot;</span>
+<span class="n">Generated</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;basic_101&quot;</span><span class="p">,</span> <span class="s2">&quot;advanced_999&quot;</span><span class="p">]</span>  <span class="c1"># 难度不匹配</span>
+</code></pre></div>
+
+<p><strong>幻觉检测指标</strong>：
+$$\text{Hallucination Rate} = \frac{\text{幻觉生成次数}}{\text{总生成次数}}$$
+细分为：
+$$\text{HR}_{\text{complete}} = \frac{|\text{Invalid IDs}|}{|\text{All Generated IDs}|}$$
+$$\text{HR}_{\text{semantic}} = \frac{|\text{Irrelevant Valid IDs}|}{|\text{Valid IDs}|}$$
+<strong>幻觉的代价不对称性</strong>：</p>
+<p>不同类型的幻觉造成的影响差异巨大：</p>
+<ul>
+<li><strong>高代价幻觉</strong>：医疗、法律、金融领域的错误信息</li>
+<li><strong>低代价幻觉</strong>：娱乐、休闲内容的轻微偏差</li>
+<li><strong>隐性代价</strong>：用户信任度下降，长期流失</li>
+</ul>
+<p>因此需要加权的幻觉惩罚：
+$$\text{Weighted Hallucination Cost} = \sum_{i} w_i \cdot \mathbb{1}[\text{hallucination}_i]$$
+其中$w_i$根据领域敏感性和业务影响确定。</p>
 <h2 id="152">15.2 新型评估指标设计</h2>
 <h3 id="1521">15.2.1 生成质量指标</h3>
 <ol>
@@ -277,12 +344,70 @@ $$\text{CGE} = \frac{\text{DCG@k}}{\text{Computational Cost}}$$
 <li><strong>对抗鲁棒性（Adversarial Robustness）</strong></li>
 </ol>
 <p>测试对轻微扰动的敏感度：
-$$\text{Robustness} = 1 - \frac{|\Delta\text{Performance}|}{|\Delta\text{Input}|}$$</p>
+$$\text{Robustness} = 1 - \frac{|\Delta\text{Performance}|}{|\Delta\text{Input}|}$$
+<strong>具体扰动策略</strong>：</p>
+<p>a) <strong>字符级扰动</strong>：
+   <code>python
+   原始查询："深度学习框架比较"
+   扰动查询："深度学习框架比交"  # 错别字
+            "深度 学习框架比较"  # 额外空格
+            "深度学习framwork比较"  # 中英混合</code></p>
+<p>b) <strong>语义级扰动</strong>：
+   <code>python
+   原始查询："如何学习机器学习"
+   同义替换："怎样学习ML"
+   改写查询："机器学习入门方法"</code></p>
+<p>c) <strong>对抗性扰动</strong>：
+   通过梯度攻击生成最坏情况输入：
+$$x_{adv} = x + \epsilon \cdot \text{sign}(\nabla_x L(f(x), y))$$</p>
 <ol start="2">
 <li><strong>分布外泛化（Out-of-Distribution Generalization）</strong></li>
 </ol>
 <p>评估在未见过的查询类型上的表现：
-$$\text{OOD-Score} = \frac{\text{Performance}_{\text{OOD}}}{\text{Performance}_{\text{IID}}}$$</p>
+$$\text{OOD-Score} = \frac{\text{Performance}_{\text{OOD}}}{\text{Performance}_{\text{IID}}}$$
+<strong>OOD测试集构建</strong>：</p>
+<ul>
+<li><strong>领域迁移</strong>：从新闻检索迁移到学术检索</li>
+<li><strong>语言迁移</strong>：从中文查询迁移到英文查询  </li>
+<li><strong>长度迁移</strong>：从短查询（2-3词）迁移到长查询（10+词）</li>
+<li><strong>时间迁移</strong>：从历史查询迁移到新兴话题查询</li>
+</ul>
+<ol start="3">
+<li><strong>一致性指标（Consistency Metrics）</strong></li>
+</ol>
+<p>衡量相似查询是否得到相似结果：
+$$\text{Consistency} = \frac{1}{|\mathcal{Q}|} \sum_{q \in \mathcal{Q}} \text{sim}(f(q), f(q'))$$
+其中$q'$是$q$的语义等价变换。</p>
+<ol start="4">
+<li><strong>稳定性指标（Stability Metrics）</strong></li>
+</ol>
+<p>评估模型输出的时间稳定性：
+$$\text{Temporal Stability} = 1 - \frac{1}{T} \sum_{t=1}^{T-1} |f_t(q) - f_{t+1}(q)|$$
+这对生成式检索尤其重要，因为模型更新可能导致完全不同的ID序列生成。</p>
+<h3 id="1524">15.2.4 用户中心的评估指标</h3>
+<p>传统指标往往忽略了用户体验的细微差别，生成式检索需要更贴近用户感知的指标：</p>
+<ol>
+<li><strong>认知负荷指标（Cognitive Load）</strong></li>
+</ol>
+<p>衡量用户理解和处理结果的难易程度：
+$$\text{Cognitive Load} = \alpha \cdot \text{结果复杂度} + \beta \cdot \text{决策时间} + \gamma \cdot \text{返回率}$$</p>
+<ol start="2">
+<li>
+<p><strong>探索-利用平衡（Exploration-Exploitation Balance）</strong>
+$$\text{E-E Balance} = \frac{\text{新颖结果数}}{\text{总结果数}} \times \text{相关性保持率}$$</p>
+</li>
+<li>
+<p><strong>会话连贯性（Session Coherence）</strong></p>
+</li>
+</ol>
+<p>对于多轮检索会话：
+$$\text{Session Coherence} = \frac{1}{n-1} \sum_{i=1}^{n-1} \text{transition_quality}(q_i, q_{i+1})$$</p>
+<ol start="4">
+<li><strong>期望违背度（Expectation Violation）</strong></li>
+</ol>
+<p>衡量结果是否符合用户预期：
+$$\text{EV} = |P(\text{result}|\text{query}) - P(\text{expected}|\text{query})|$$
+生成式检索可能产生"创造性"但违背用户期望的结果。</p>
 <h2 id="153">15.3 主流数据集与基准</h2>
 <h3 id="1531-ms-marco">15.3.1 MS MARCO</h3>
 <p><strong>数据集特点</strong>：</p>
@@ -352,6 +477,178 @@ $$\text{OOD-Score} = \frac{\text{Performance}_{\text{OOD}}}{\text{Performance}_{
 <span class="p">}</span>
 </code></pre></div>
 
+<h3 id="1534">15.3.4 专门化的生成式检索基准</h3>
+<p>随着生成式检索的发展，社区开发了专门的评估基准：</p>
+<ol>
+<li><strong>GenIR-Bench（2023）</strong></li>
+</ol>
+<p>专为生成式检索设计的综合基准：</p>
+<div class="codehilite"><pre><span></span><code>数据规模：
+
+- 10M文档，100K查询
+- 5种语言（英、中、日、德、法）
+- 8个垂直领域
+
+特色任务：
+
+- 增量索引更新
+- 跨语言检索
+- 多跳推理检索
+- 时序感知检索
+</code></pre></div>
+
+<p><strong>评估维度</strong>：</p>
+<ul>
+<li><strong>生成准确性</strong>：ID序列的精确匹配率</li>
+<li><strong>语义保真度</strong>：生成结果的语义相关性</li>
+<li><strong>计算效率</strong>：FLOPs、内存、延迟</li>
+<li><strong>适应能力</strong>：新文档的快速索引能力</li>
+</ul>
+<ol start="2">
+<li><strong>DSI-QA数据集</strong></li>
+</ol>
+<p>专注于问答场景的生成式检索：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 数据集结构</span>
+<span class="p">{</span>
+    <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;谁发明了电话？&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;doc_ids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;wiki_bell_001&quot;</span><span class="p">,</span> <span class="s2">&quot;patent_1876_174&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;answer_spans&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;亚历山大·贝尔&quot;</span><span class="p">,</span> <span class="s2">&quot;1876年3月10日&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;difficulty&quot;</span><span class="p">:</span> <span class="s2">&quot;easy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reasoning_type&quot;</span><span class="p">:</span> <span class="s2">&quot;factual&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>特点</strong>：</p>
+<ul>
+<li>结合检索和答案生成</li>
+<li>多粒度标注（文档级、段落级、句子级）</li>
+<li>推理类型分类（事实型、推理型、聚合型）</li>
+</ul>
+<ol start="3">
+<li><strong>Streaming-IR基准</strong></li>
+</ol>
+<p>评估动态文档流场景：</p>
+<div class="codehilite"><pre><span></span><code>时间线：
+T0: 初始10K文档
+T1: +1K新文档，-500旧文档
+T2: +2K新文档，-1K旧文档
+...
+T100: 文档集完全更新
+</code></pre></div>
+
+<p><strong>关键指标</strong>：</p>
+<ul>
+<li><strong>适应延迟</strong>：新文档可检索的时间</li>
+<li><strong>遗忘率</strong>：旧知识的保持程度</li>
+<li><strong>增量学习效率</strong>：更新所需计算资源</li>
+</ul>
+<h3 id="1535">15.3.5 领域特定基准</h3>
+<ol>
+<li><strong>BioASQ（生物医学）</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>规模：15M PubMed文档
+查询类型：
+
+- Yes/No问题
+- 事实型问题
+- 列表型问题
+- 摘要型问题
+
+生成式检索挑战：
+
+- 专业术语的准确生成
+- 医学实体的规范化
+- 证据链的完整性
+</code></pre></div>
+
+<ol start="2">
+<li><strong>MSMARCO-Product（电商）</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>特点：
+
+- 真实产品查询
+- 多模态信息（文本+图像）
+- 用户行为信号（点击、购买、评价）
+
+生成式适配：
+
+- 产品ID的层次化编码
+- 考虑库存状态的动态生成
+- 个性化排序的融合
+</code></pre></div>
+
+<ol start="3">
+<li><strong>TREC-Legal（法律）</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>挑战：
+
+- 超长文档（平均10K词）
+- 精确性要求极高
+- 引用关系的保持
+
+生成式方案：
+
+- 分层标识符（法院-年份-案件号）
+- 约束生成确保合法ID
+- 引用图的联合建模
+</code></pre></div>
+
+<h3 id="1536">15.3.6 评估基准的最佳实践</h3>
+<ol>
+<li><strong>数据集选择策略</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">select_benchmarks</span><span class="p">(</span><span class="n">system_type</span><span class="p">,</span> <span class="n">deployment_scenario</span><span class="p">):</span>
+    <span class="n">core_benchmarks</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MS-MARCO&#39;</span><span class="p">,</span> <span class="s1">&#39;Natural Questions&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">deployment_scenario</span> <span class="o">==</span> <span class="s1">&#39;zero-shot&#39;</span><span class="p">:</span>
+        <span class="n">core_benchmarks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;BEIR&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">system_type</span> <span class="o">==</span> <span class="s1">&#39;multilingual&#39;</span><span class="p">:</span>
+        <span class="n">core_benchmarks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;mMARCO&#39;</span><span class="p">,</span> <span class="s1">&#39;XOR-QA&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">requires_streaming</span><span class="p">:</span>
+        <span class="n">core_benchmarks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Streaming-IR&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">core_benchmarks</span>
+</code></pre></div>
+
+<ol start="2">
+<li><strong>评估流程标准化</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>Step 1: 数据预处理
+
+- 文档ID映射设计
+- 查询规范化
+- 训练/验证/测试划分
+
+Step 2: 模型训练
+
+- 超参数网格搜索
+- 早停策略
+- 检查点保存
+
+Step 3: 推理评估
+
+- 批处理 vs 流式
+- 缓存策略
+- 错误分析
+
+Step 4: 结果报告
+
+- 平均值±标准差
+- 统计显著性检验
+- 失败案例分析
+</code></pre></div>
+
+<ol start="3">
+<li><strong>公平比较原则</strong></li>
+</ol>
+<ul>
+<li><strong>相同的预处理</strong>：tokenization、normalization一致</li>
+<li><strong>相同的硬件环境</strong>：GPU型号、内存大小</li>
+<li><strong>相同的推理设置</strong>：beam size、温度参数</li>
+<li><strong>多次运行取平均</strong>：至少3次随机种子</li>
+</ul>
 <h2 id="154">15.4 高级话题：因果推断在离线评估中的应用</h2>
 <h3 id="1541">15.4.1 从相关性到因果性</h3>
 <p>传统的离线评估往往陷入相关性陷阱，无法准确预测系统变更的真实影响。因果推断框架为生成式检索提供了更可靠的离线评估方法。</p>
@@ -446,8 +743,170 @@ $$\tau_{RD} = \lim_{x \downarrow c} E[Y_i | X_i = x] - \lim_{x \uparrow c} E[Y_i
 <li>确认总效应存在：生成式检索 → 满意度</li>
 <li>确认中介路径：生成式检索 → 响应时间 → 满意度</li>
 <li>计算间接效应占比
-$$\text{Mediation Ratio} = \frac{\text{Indirect Effect}}{\text{Total Effect}}$$</li>
+$$\text{Mediation Ratio} = \frac{\text{Indirect Effect}}{\text{Total Effect}}$$
+<strong>结构方程模型（SEM）应用</strong>：</li>
 </ol>
+<p>对于多个中介变量的复杂情况，使用SEM同时估计所有路径：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 路径系数估计</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;gen_retrieval → response_time&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.35</span><span class="p">,</span>  <span class="c1"># 负相关：生成更快</span>
+    <span class="s1">&#39;gen_retrieval → diversity&#39;</span><span class="p">:</span> <span class="mf">0.42</span><span class="p">,</span>       <span class="c1"># 正相关：更多样</span>
+    <span class="s1">&#39;gen_retrieval → relevance&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.08</span><span class="p">,</span>      <span class="c1"># 轻微负相关</span>
+    <span class="s1">&#39;response_time → satisfaction&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.28</span><span class="p">,</span>    <span class="c1"># 快速响应提升满意度</span>
+    <span class="s1">&#39;diversity → satisfaction&#39;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>         <span class="c1"># 多样性的正面影响</span>
+    <span class="s1">&#39;relevance → satisfaction&#39;</span><span class="p">:</span> <span class="mf">0.65</span><span class="p">,</span>         <span class="c1"># 相关性最重要</span>
+    <span class="s1">&#39;gen_retrieval → satisfaction&#39;</span><span class="p">:</span> <span class="mf">0.12</span>      <span class="c1"># 直接效应</span>
+<span class="p">}</span>
+
+<span class="c1"># 总效应计算</span>
+<span class="n">total_effect</span> <span class="o">=</span> <span class="mf">0.12</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.35</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.28</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.42</span><span class="o">*</span><span class="mf">0.15</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.08</span><span class="p">)</span><span class="o">*</span><span class="mf">0.65</span>
+<span class="c1"># = 0.12 + 0.098 + 0.063 - 0.052 = 0.229</span>
+</code></pre></div>
+
+<p><strong>Sobel检验</strong>：</p>
+<p>验证中介效应的统计显著性：
+$$z = \frac{a \times b}{\sqrt{b^2 \times s_a^2 + a^2 \times s_b^2}}$$
+其中$a$是自变量到中介变量的系数，$b$是中介变量到因变量的系数。</p>
+<h3 id="1546-hte">15.4.6 异质性处理效应（HTE）</h3>
+<p>不同用户群体对生成式检索的响应存在显著差异：</p>
+<p><strong>条件平均处理效应（CATE）估计</strong>：
+$$\tau(x) = E[Y_i(1) - Y_i(0) | X_i = x]$$
+<strong>机器学习方法估计HTE</strong>：</p>
+<ol>
+<li><strong>因果森林（Causal Forest）</strong>：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">econml.dml</span> <span class="kn">import</span> <span class="n">CausalForestDML</span>
+
+<span class="c1"># 特征：用户画像、查询特征、上下文</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">user_features</span>
+<span class="c1"># 处理：是否使用生成式检索</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">treatment_assignment</span>  
+<span class="c1"># 结果：用户满意度</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">satisfaction_score</span>
+
+<span class="c1"># 训练因果森林</span>
+<span class="n">causal_forest</span> <span class="o">=</span> <span class="n">CausalForestDML</span><span class="p">(</span>
+    <span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">min_samples_leaf</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+<span class="n">causal_forest</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
+
+<span class="c1"># 预测个体处理效应</span>
+<span class="n">individual_effects</span> <span class="o">=</span> <span class="n">causal_forest</span><span class="o">.</span><span class="n">effect</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</code></pre></div>
+
+<ol start="2">
+<li><strong>元学习器（Meta-Learners）</strong>：</li>
+</ol>
+<p><strong>S-Learner</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 单一模型，treatment作为特征</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">XGBoostRegressor</span><span class="p">()</span>
+<span class="n">X_with_treatment</span> <span class="o">=</span> <span class="n">concat</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_with_treatment</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>T-Learner</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 分别训练treatment和control模型</span>
+<span class="n">model_treated</span> <span class="o">=</span> <span class="n">XGBoostRegressor</span><span class="p">()</span>
+<span class="n">model_control</span> <span class="o">=</span> <span class="n">XGBoostRegressor</span><span class="p">()</span>
+<span class="n">model_treated</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">T</span><span class="o">==</span><span class="mi">1</span><span class="p">],</span> <span class="n">Y</span><span class="p">[</span><span class="n">T</span><span class="o">==</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">model_control</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">T</span><span class="o">==</span><span class="mi">0</span><span class="p">],</span> <span class="n">Y</span><span class="p">[</span><span class="n">T</span><span class="o">==</span><span class="mi">0</span><span class="p">])</span>
+<span class="c1"># HTE = 预测差异</span>
+<span class="n">hte</span> <span class="o">=</span> <span class="n">model_treated</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">-</span> <span class="n">model_control</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>X-Learner</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 改进T-Learner，使用倾向分数加权</span>
+<span class="c1"># Step 1: 训练结果模型</span>
+<span class="c1"># Step 2: 计算伪结果</span>
+<span class="c1"># Step 3: 训练HTE模型</span>
+<span class="c1"># Step 4: 倾向分数加权组合</span>
+</code></pre></div>
+
+<p><strong>发现的用户群体差异</strong>：</p>
+<div class="codehilite"><pre><span></span><code>新手用户（使用&lt;1月）：
+
+- CATE = +12.3%
+- 原因：更容易接受新界面，探索意愿强
+
+专家用户（使用&gt;2年）：
+
+- CATE = -3.5%
+- 原因：习惯传统检索，精确查询需求
+
+移动用户：
+
+- CATE = +8.7%
+- 原因：生成式检索减少输入，适合移动场景
+
+桌面用户：
+
+- CATE = +2.1%
+- 原因：效果提升有限，传统方法已经很好
+</code></pre></div>
+
+<h3 id="1547-synthetic-control">15.4.7 合成控制法（Synthetic Control）</h3>
+<p>当无法进行随机实验时，使用合成控制法构建反事实：</p>
+<p><strong>应用场景</strong>：某个地区率先部署生成式检索</p>
+<p><strong>方法步骤</strong>：</p>
+<ol>
+<li>
+<p><strong>预处理期匹配</strong>：
+   找到控制地区的权重$W$，使得：
+$$\min_W \sum_{t&lt;T_0} (Y_{treated,t} - \sum_j W_j Y_{control_j,t})^2$$</p>
+</li>
+<li>
+<p><strong>构建合成控制</strong>：
+$$Y_{synthetic,t} = \sum_j W_j^* Y_{control_j,t}$$</p>
+</li>
+<li>
+<p><strong>估计处理效应</strong>：
+$$\tau_t = Y_{treated,t} - Y_{synthetic,t}, \quad t \geq T_0$$</p>
+</li>
+</ol>
+<p><strong>实际案例</strong>：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 北京地区部署生成式检索</span>
+<span class="n">treated_region</span> <span class="o">=</span> <span class="s1">&#39;Beijing&#39;</span>
+<span class="n">control_regions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Shanghai&#39;</span><span class="p">,</span> <span class="s1">&#39;Guangzhou&#39;</span><span class="p">,</span> <span class="s1">&#39;Shenzhen&#39;</span><span class="p">,</span> <span class="s1">&#39;Hangzhou&#39;</span><span class="p">]</span>
+
+<span class="c1"># 预处理期（部署前3个月）</span>
+<span class="n">pre_period</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="c1"># 后处理期（部署后1个月）</span>
+<span class="n">post_period</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+
+<span class="c1"># 学习权重</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Shanghai&#39;</span><span class="p">:</span> <span class="mf">0.35</span><span class="p">,</span>
+    <span class="s1">&#39;Guangzhou&#39;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+    <span class="s1">&#39;Shenzhen&#39;</span><span class="p">:</span> <span class="mf">0.20</span><span class="p">,</span>
+    <span class="s1">&#39;Hangzhou&#39;</span><span class="p">:</span> <span class="mf">0.20</span>
+<span class="p">}</span>
+
+<span class="c1"># 构建合成北京</span>
+<span class="n">synthetic_beijing</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">metrics</span><span class="p">[</span><span class="n">region</span><span class="p">]</span> <span class="k">for</span> <span class="n">region</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+<span class="c1"># 计算效应</span>
+<span class="n">effect</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;Beijing&#39;</span><span class="p">][</span><span class="n">post_period</span><span class="p">]</span> <span class="o">-</span> <span class="n">synthetic_beijing</span><span class="p">[</span><span class="n">post_period</span><span class="p">]</span>
+</code></pre></div>
+
+<p><strong>置换检验（Permutation Test）</strong>：</p>
+<p>验证效应的统计显著性：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">placebo_test</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">treated_unit</span><span class="p">,</span> <span class="n">n_iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">placebo_effects</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_iterations</span><span class="p">):</span>
+        <span class="c1"># 随机选择一个控制单位作为&quot;假处理&quot;</span>
+        <span class="n">placebo_treated</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">control_units</span><span class="p">)</span>
+        <span class="n">placebo_effect</span> <span class="o">=</span> <span class="n">estimate_synthetic_control</span><span class="p">(</span><span class="n">placebo_treated</span><span class="p">)</span>
+        <span class="n">placebo_effects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">placebo_effect</span><span class="p">)</span>
+
+    <span class="c1"># 计算p值</span>
+    <span class="n">true_effect</span> <span class="o">=</span> <span class="n">estimate_synthetic_control</span><span class="p">(</span><span class="n">treated_unit</span><span class="p">)</span>
+    <span class="n">p_value</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">true_effect</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">placebo_effects</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_iterations</span>
+
+    <span class="k">return</span> <span class="n">p_value</span>
+</code></pre></div>
+
 <h2 id="155-airbnbab">15.5 工业案例：Airbnb的A/B测试框架演进</h2>
 <h3 id="1551">15.5.1 背景与挑战</h3>
 <p>Airbnb在2019-2023年间逐步将搜索系统从传统的Elasticsearch迁移到包含生成式组件的混合架构。这个过程中，他们构建了一套专门针对生成式检索的评估框架。</p>
@@ -670,8 +1129,9 @@ a) ID-Precision@2
 b) ID-Precision@4
 c) Semantic Recall（假设"d2"与"d5"语义相似）</p>
 <p><em>Hint</em>: 注意生成序列的顺序性和语义等价性。</p>
-<details>
+<details markdown="1">
 <summary>参考答案</summary>
+
 <p>a) ID-Precision@2 = 1/2 = 0.5（前2个中只有d1相关）
 b) ID-Precision@4 = 2/4 = 0.5（4个中d1和d3相关）
 c) 如果d2与d5语义相似，则Semantic Recall = 3/3 = 1.0（所有语义相关的都被召回）</p>
